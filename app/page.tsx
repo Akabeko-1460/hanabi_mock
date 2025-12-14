@@ -5,11 +5,12 @@ import { UploadMode } from "@/components/UploadMode";
 import { RealTimeFire } from "@/components/RealTimeFire";
 import { Introduction } from "@/components/Introduction";
 import { SocialTab } from "@/components/Social/SocialTab";
+import { Login } from "@/components/Login";
 import { Camera, Image as ImageIcon, Info, Users } from "lucide-react";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<
-    "intro" | "social" | "upload" | "camera"
+    "intro" | "social" | "upload" | "camera" | "login"
   >("intro");
 
   return (
@@ -30,48 +31,55 @@ export default function Home() {
         <div className="flex p-1 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm overflow-x-auto max-w-full">
           <button
             onClick={() => setActiveTab("intro")}
-            className={`flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 ${
-              activeTab === "intro"
+            className={`flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 ${activeTab === "intro"
                 ? "bg-white/10 text-white shadow-lg"
                 : "text-white/40 hover:text-white/70"
-            }`}
+              }`}
           >
             <Info size={18} />
             <span className="font-medium whitespace-nowrap">About</span>
           </button>
           <button
             onClick={() => setActiveTab("social")}
-            className={`flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 ${
-              activeTab === "social"
+            className={`flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 ${activeTab === "social"
                 ? "bg-white/10 text-white shadow-lg"
                 : "text-white/40 hover:text-white/70"
-            }`}
+              }`}
           >
             <Users size={18} />
             <span className="font-medium whitespace-nowrap">Community</span>
           </button>
           <button
             onClick={() => setActiveTab("upload")}
-            className={`flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 ${
-              activeTab === "upload"
+            className={`flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 ${activeTab === "upload"
                 ? "bg-white/10 text-white shadow-lg"
                 : "text-white/40 hover:text-white/70"
-            }`}
+              }`}
           >
             <ImageIcon size={18} />
             <span className="font-medium whitespace-nowrap">Photo Upload</span>
           </button>
           <button
             onClick={() => setActiveTab("camera")}
-            className={`flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 ${
-              activeTab === "camera"
+            className={`flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 ${activeTab === "camera"
                 ? "bg-white/10 text-white shadow-lg"
                 : "text-white/40 hover:text-white/70"
-            }`}
+              }`}
           >
             <Camera size={18} />
             <span className="font-medium whitespace-nowrap">
               Real-time Camera
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab("login")}
+            className={`flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 ${activeTab === "login"
+                ? "bg-white/10 text-white shadow-lg"
+                : "text-white/40 hover:text-white/70"
+              }`}
+          >
+            <span className="font-medium whitespace-nowrap">
+              Login
             </span>
           </button>
         </div>
@@ -84,6 +92,7 @@ export default function Home() {
           {activeTab === "social" && <SocialTab />}
           {activeTab === "upload" && <UploadMode />}
           {activeTab === "camera" && <RealTimeFire />}
+          {activeTab === "login" && <Login />}
         </div>
       </div>
     </main>
