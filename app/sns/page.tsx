@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/Social/Sidebar";
 import { Widgets } from "@/components/Social/Widgets";
 import { SocialTab } from "@/components/Social/SocialTab";
@@ -10,13 +11,35 @@ import { useProfile } from "@/hooks/useProfile";
 
 export default function CommunityPage() {
   const [isPostModalOpen, setPostModalOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { profile } = useProfile(user);
+  const router = useRouter();
+
+  // Redirect to home if not logged in
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/");
+    }
+  }, [user, loading, router]);
 
   const handlePost = () => {
     // Optionally trigger a refresh or just rely on Firestore listener in SocialTab
     console.log("Post created");
   };
+
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-white/70">Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render if not logged in (will redirect)
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-black text-white flex justify-center">
