@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { CreatePost } from "./CreatePost";
 import { PostCard, PostData } from "./PostCard";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 
 const STORAGE_KEY = "hanabi_social_posts";
 
@@ -29,28 +31,55 @@ const SEED_POSTS: PostData[] = [
 ];
 
 export function SocialTab() {
-  const [posts, setPosts] = useState<PostData[]>([]);
+  const [posts, setPosts] = useState<PostData[]>(SEED_POSTS);
+  const [ready, setReady] = useState(false);
 
-  // Load from local storage on mount
+  // Subscribe to Firestore in realtime
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setPosts(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse posts", e);
-        setPosts(SEED_POSTS);
-      }
-    } else {
-      setPosts(SEED_POSTS);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(SEED_POSTS));
+    try {
+      const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+      const unsub = onSnapshot(
+        q,
+        (snap) => {
+          const fetched: PostData[] = snap.docs.map((d) => {
+            const data = d.data() as any;
+            return {
+              id: d.id,
+              author: data.author ?? "Unknown",
+              avatar: data.avatar ?? "from-orange-500 to-red-600",
+              content: data.content ?? "",
+              image: data.image ?? undefined,
+              timestamp:
+                (data.timestamp?.toMillis?.() as number) ?? Date.now(),
+              likes: data.likes ?? 0,
+            };
+          });
+          setPosts(fetched.length ? fetched : SEED_POSTS);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(fetched));
+          setReady(true);
+        },
+        (err) => {
+          console.error("Firestore subscription error", err);
+          // Fallback to localStorage
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            try {
+              setPosts(JSON.parse(saved));
+            } catch {}
+          }
+          setReady(true);
+        }
+      );
+      return () => unsub();
+    } catch (e) {
+      console.error(e);
+      setReady(true);
     }
   }, []);
 
   const handleNewPost = (newPost: PostData) => {
-    const updatedPosts = [newPost, ...posts];
-    setPosts(updatedPosts);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPosts));
+    // 楽観的更新：投稿直後に先頭に追加
+    setPosts((prev) => [newPost, ...prev]);
   };
 
   return (
@@ -58,6 +87,9 @@ export function SocialTab() {
       <CreatePost onPost={handleNewPost} />
 
       <div className="space-y-4">
+        {!ready && (
+          <div className="text-white/50 text-sm">Loading posts...</div>
+        )}
         {posts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}

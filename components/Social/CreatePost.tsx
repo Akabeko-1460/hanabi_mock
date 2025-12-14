@@ -3,6 +3,9 @@
 import React, { useState, useRef } from "react";
 import { Image as ImageIcon, Send, X } from "lucide-react";
 import { PostData } from "./PostCard";
+import { db, storage } from "@/lib/firebase";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 
 interface CreatePostProps {
   onPost: (newPost: PostData) => void;
@@ -11,6 +14,7 @@ interface CreatePostProps {
 export function CreatePost({ onPost }: CreatePostProps) {
   const [content, setContent] = useState("");
   const [image, setImage] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,25 +28,50 @@ export function CreatePost({ onPost }: CreatePostProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim() && !image) return;
+    setSubmitting(true);
 
-    const newPost: PostData = {
-      id: Date.now().toString(),
-      author: "Dragon Master", // Mock user
-      avatar: "from-orange-500 to-red-600", // Gradient classes
-      content,
-      image: image || undefined,
-      timestamp: Date.now(),
-      likes: 0,
-    };
+    try {
+      // 1) 画像がある場合は Storage にアップロード
+      let imageUrl: string | undefined = undefined;
+      const tempId = Date.now().toString();
+      if (image) {
+        const imgRef = ref(storage, `posts/${tempId}`);
+        await uploadString(imgRef, image, "data_url");
+        imageUrl = await getDownloadURL(imgRef);
+      }
 
-    onPost(newPost);
+      // 2) Firestore に投稿ドキュメントを追加
+      const docRef = await addDoc(collection(db, "posts"), {
+        author: "Dragon Master", // TODO: 実ユーザーに置換
+        avatar: "from-orange-500 to-red-600",
+        content: content.trim(),
+        image: imageUrl || null,
+        timestamp: serverTimestamp(),
+        likes: 0,
+      });
 
-    // Reset form
-    setContent("");
-    setImage(null);
+      const newPost: PostData = {
+        id: docRef.id,
+        author: "Dragon Master",
+        avatar: "from-orange-500 to-red-600",
+        content: content.trim(),
+        image: imageUrl || undefined,
+        timestamp: Date.now(), // 表示用に仮タイムスタンプ（サーバー側は serverTimestamp）
+        likes: 0,
+      };
+      onPost(newPost);
+
+      // Reset form
+      setContent("");
+      setImage(null);
+    } catch (err) {
+      console.error("Failed to submit post", err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -95,11 +124,11 @@ export function CreatePost({ onPost }: CreatePostProps) {
 
             <button
               type="submit"
-              disabled={!content.trim() && !image}
+              disabled={submitting || (!content.trim() && !image)}
               className="px-4 py-2 bg-orange-600 text-white rounded-full font-bold text-sm hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all"
             >
               <Send size={16} />
-              Post
+              {submitting ? "Posting..." : "Post"}
             </button>
           </div>
         </div>
