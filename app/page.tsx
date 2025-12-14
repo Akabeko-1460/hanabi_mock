@@ -6,13 +6,16 @@ import { RealTimeFire } from "@/components/RealTimeFire";
 import { Introduction } from "@/components/Introduction";
 import { SocialTab } from "@/components/Social/SocialTab";
 import { Login } from "@/components/Login";
+import { ProfileSettings } from "@/components/ProfileSettings";
 import { useAuth } from "@/hooks/useAuth";
-import { Camera, Image as ImageIcon, Info, Users } from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
+import { Camera, Image as ImageIcon, Info, Users, Settings } from "lucide-react";
 
 export default function Home() {
   const { user, loading } = useAuth();
+  const { profile, updateProfile } = useProfile(user);
   const [activeTab, setActiveTab] = useState<
-    "intro" | "social" | "upload" | "camera" | "login"
+    "intro" | "social" | "upload" | "camera" | "login" | "settings"
   >("intro");
 
   return (
@@ -84,6 +87,20 @@ export default function Home() {
               Login
             </span>
           </button>
+          {user && (
+            <button
+              onClick={() => setActiveTab("settings")}
+              className={`flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 ${activeTab === "settings"
+                  ? "bg-white/10 text-white shadow-lg"
+                  : "text-white/40 hover:text-white/70"
+                }`}
+            >
+              <Settings size={18} />
+              <span className="font-medium whitespace-nowrap">
+                Settings
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Content Area */}
@@ -108,6 +125,20 @@ export default function Home() {
           {activeTab === "upload" && <UploadMode />}
           {activeTab === "camera" && <RealTimeFire />}
           {activeTab === "login" && <Login />}
+          {activeTab === "settings" && (
+            loading ? (
+              <div className="text-white/70">Loading profile...</div>
+            ) : user ? (
+              <ProfileSettings profile={profile} onSave={updateProfile} />
+            ) : (
+              <div className="flex flex-col items-center gap-4 text-center">
+                <p className="text-white/70">
+                  設定を変更するにはログインしてください。
+                </p>
+                <Login />
+              </div>
+            )
+          )}
         </div>
       </div>
     </main>

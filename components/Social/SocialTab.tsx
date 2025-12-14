@@ -5,6 +5,8 @@ import { CreatePost } from "./CreatePost";
 import { PostCard, PostData } from "./PostCard";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 
 const STORAGE_KEY = "hanabi_social_posts";
 
@@ -31,6 +33,8 @@ const SEED_POSTS: PostData[] = [
 ];
 
 export function SocialTab() {
+  const { user } = useAuth();
+  const { profile } = useProfile(user);
   const [posts, setPosts] = useState<PostData[]>(SEED_POSTS);
   const [ready, setReady] = useState(false);
 
@@ -47,6 +51,7 @@ export function SocialTab() {
               id: d.id,
               author: data.author ?? "Unknown",
               avatar: data.avatar ?? "from-orange-500 to-red-600",
+              photoURL: data.photoURL ?? undefined,
               content: data.content ?? "",
               image: data.image ?? undefined,
               timestamp:
@@ -84,7 +89,7 @@ export function SocialTab() {
 
   return (
     <div className="w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <CreatePost onPost={handleNewPost} />
+      <CreatePost onPost={handleNewPost} userProfile={profile} />
 
       <div className="space-y-4">
         {!ready && (

@@ -6,12 +6,14 @@ import { PostData } from "./PostCard";
 import { db, storage } from "@/lib/firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import { UserProfile } from "@/hooks/useProfile";
 
 interface CreatePostProps {
   onPost: (newPost: PostData) => void;
+  userProfile: UserProfile | null;
 }
 
-export function CreatePost({ onPost }: CreatePostProps) {
+export function CreatePost({ onPost, userProfile }: CreatePostProps) {
   const [content, setContent] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -44,9 +46,14 @@ export function CreatePost({ onPost }: CreatePostProps) {
       }
 
       // 2) Firestore に投稿ドキュメントを追加
+      const author = userProfile?.displayName || "Dragon Master";
+      const avatar = userProfile?.avatarGradient || "from-orange-500 to-red-600";
+      const photoURL = userProfile?.photoURL || null;
+      
       const docRef = await addDoc(collection(db, "posts"), {
-        author: "Dragon Master", // TODO: 実ユーザーに置換
-        avatar: "from-orange-500 to-red-600",
+        author,
+        avatar,
+        photoURL,
         content: content.trim(),
         image: imageUrl || null,
         timestamp: serverTimestamp(),
@@ -55,8 +62,9 @@ export function CreatePost({ onPost }: CreatePostProps) {
 
       const newPost: PostData = {
         id: docRef.id,
-        author: "Dragon Master",
-        avatar: "from-orange-500 to-red-600",
+        author,
+        avatar,
+        photoURL: photoURL || undefined,
         content: content.trim(),
         image: imageUrl || undefined,
         timestamp: Date.now(), // 表示用に仮タイムスタンプ（サーバー側は serverTimestamp）
@@ -74,13 +82,24 @@ export function CreatePost({ onPost }: CreatePostProps) {
     }
   };
 
+  const avatarGradient = userProfile?.avatarGradient || "from-orange-500 to-red-600";
+  const userPhotoURL = userProfile?.photoURL;
+
   return (
     <form
       onSubmit={handleSubmit}
       className="w-full bg-white/5 border border-white/10 rounded-xl p-4 mb-8"
     >
       <div className="flex gap-4">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-red-600 flex-shrink-0" />
+        {userPhotoURL ? (
+          <img
+            src={userPhotoURL}
+            alt="Your avatar"
+            className="w-10 h-10 rounded-full flex-shrink-0 object-cover"
+          />
+        ) : (
+          <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${avatarGradient} flex-shrink-0`} />
+        )}
         <div className="flex-1 space-y-4">
           <textarea
             value={content}

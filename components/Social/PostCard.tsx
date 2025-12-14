@@ -6,7 +6,8 @@ import { Heart, MessageCircle, Share2, MoreHorizontal } from "lucide-react";
 export interface PostData {
   id: string;
   author: string;
-  avatar: string; // URL or placeholder color
+  avatar: string; // Gradient classes or placeholder
+  photoURL?: string; // User's custom avatar image URL
   content: string;
   image?: string; // Data URL
   timestamp: number;
@@ -43,11 +44,19 @@ export function PostCard({ post }: PostCardProps) {
     <div className="w-full bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:bg-white/[0.07] transition-colors">
       <div className="p-4 flex gap-4">
         {/* Avatar */}
-        <div
-          className={`w-10 h-10 rounded-full flex-shrink-0 bg-gradient-to-tr ${post.avatar} flex items-center justify-center text-white font-bold text-sm`}
-        >
-          {post.author[0]}
-        </div>
+        {post.photoURL ? (
+          <img
+            src={post.photoURL}
+            alt={post.author}
+            className="w-10 h-10 rounded-full flex-shrink-0 object-cover"
+          />
+        ) : (
+          <div
+            className={`w-10 h-10 rounded-full flex-shrink-0 bg-gradient-to-tr ${post.avatar} flex items-center justify-center text-white font-bold text-sm`}
+          >
+            {post.author[0]}
+          </div>
+        )}
 
         <div className="flex-1 space-y-2">
           {/* Header */}
