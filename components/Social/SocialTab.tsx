@@ -109,12 +109,15 @@ export function SocialTab({ tab = "everyone" }: { tab?: "everyone" | "solo" }) {
 
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {user && (
+        <CreatePost onPost={handleNewPost} userProfile={profile} />
+      )}
       <div className="space-y-4">
         {!ready && (
           <div className="text-white/50 text-sm">Loading posts...</div>
         )}
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard key={post.id} post={post} onLoginRequired={() => {}} />
         ))}
       </div>
     </div>
