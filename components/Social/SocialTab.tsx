@@ -39,7 +39,13 @@ const SEED_POSTS: PostData[] = [
   },
 ];
 
-export function SocialTab({ tab = "everyone" }: { tab?: "everyone" | "solo" }) {
+export function SocialTab({
+  tab = "everyone",
+  showCompose = false,
+}: {
+  tab?: "everyone" | "solo";
+  showCompose?: boolean;
+}) {
   const { user } = useAuth();
   const { profile } = useProfile(user);
   const [posts, setPosts] = useState<PostData[]>(SEED_POSTS);
