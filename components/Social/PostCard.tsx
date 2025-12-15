@@ -41,7 +41,12 @@ interface PostCardProps {
   post: PostData;
 }
 
-export function PostCard({ post }: PostCardProps) {
+interface PostCardProps {
+  post: PostData;
+  onLoginRequired?: () => void;
+}
+
+export function PostCard({ post, onLoginRequired }: PostCardProps) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likes);
   const [showMenu, setShowMenu] = useState(false);
@@ -257,8 +262,14 @@ export function PostCard({ post }: PostCardProps) {
 
           {/* Actions */}
           <div className="flex justify-between items-center pt-2 text-white/50 max-w-sm">
-            <button
-              onClick={() => setShowReplyBox((v) => !v)}
+            <button 
+              onClick={() => {
+                if (!user) {
+                  onLoginRequired?.();
+                  return;
+                }
+                setShowReplyBox((v) => !v);
+              }} 
               className="flex items-center gap-2 hover:text-blue-400 group transition-colors"
             >
               <MessageCircle
@@ -268,7 +279,13 @@ export function PostCard({ post }: PostCardProps) {
               <span className="text-xs">Reply</span>
             </button>
             <button
-              onClick={handleLike}
+              onClick={() => {
+                if (!user) {
+                  onLoginRequired?.();
+                  return;
+                }
+                handleLike();
+              }}
               className={`flex items-center gap-2 group transition-colors ${
                 liked ? "text-pink-500" : "hover:text-pink-500"
               }`}
