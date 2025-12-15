@@ -25,12 +25,10 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile } from "@/hooks/useProfile";
 
 export interface PostData {
   id: string;
   author: string;
-  authorId: string;
   avatar: string; // Gradient classes or placeholder
   photoURL?: string; // User's custom avatar image URL
   content: string;
@@ -54,7 +52,6 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const { profile } = useProfile(user);
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
@@ -151,7 +148,7 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
     const q = query(repliesRef, orderBy("timestamp", "asc"));
     const unsub = onSnapshot(q, (snap) => {
       const list = snap.docs.map((d) => {
-        const data = d.data();
+        const data = d.data() as ReplyData;
         return {
           id: d.id,
           author: data.author ?? "",
@@ -172,9 +169,9 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
     try {
       const repliesRef = collection(db, "posts", post.id, "replies");
       await addDoc(repliesRef, {
-        author: profile?.displayName || user.displayName || "Anonymous",
+        author: user.displayName || "Anonymous",
         uid: user.uid,
-        photoURL: profile?.photoURL || user.photoURL || null,
+        photoURL: user.photoURL || null,
         content: replyText.trim(),
         timestamp: serverTimestamp(),
       });
@@ -195,11 +192,11 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
           <img
             src={post.photoURL}
             alt={post.author}
-            className="w-10 h-10 rounded-full shrink-0 object-cover"
+            className="w-10 h-10 rounded-full flex-shrink-0 object-cover"
           />
         ) : (
           <div
-            className={`w-10 h-10 rounded-full shrink-0 bg-linear-to-tr ${post.avatar} flex items-center justify-center text-white font-bold text-sm`}
+            className={`w-10 h-10 rounded-full flex-shrink-0 bg-gradient-to-tr ${post.avatar} flex items-center justify-center text-white font-bold text-sm`}
           >
             {post.author[0]}
           </div>
@@ -247,7 +244,7 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
           </div>
 
           {/* Content */}
-          <p className="text-white/90 whitespace-pre-wrap wrap-break-word">
+          <p className="text-white/90 whitespace-pre-wrap break-words">
             {post.content}
           </p>
 
@@ -257,7 +254,7 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
               <img
                 src={post.image}
                 alt="Post content"
-                className="w-full h-auto max-h-100 object-cover"
+                className="w-full h-auto max-h-[400px] object-cover"
                 loading="lazy"
               />
             </div>
@@ -337,10 +334,10 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
           {/* Reply input */}
           {showReplyBox && (
             <div className="mt-3 flex items-end gap-2">
-              {profile?.photoURL || user?.photoURL ? (
+              {user?.photoURL ? (
                 <img
-                  src={profile?.photoURL || user?.photoURL || ""}
-                  alt={profile?.displayName || user?.displayName || "You"}
+                  src={user.photoURL}
+                  alt={user.displayName ?? "You"}
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
@@ -381,7 +378,7 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-linear-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
                       {r.author[0] || "?"}
                     </div>
                   )}
