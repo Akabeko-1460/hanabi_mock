@@ -74,6 +74,7 @@ export function CreatePost({ onPost, userProfile }: CreatePostProps) {
         timestamp: Date.now(), // 表示用に仮タイムスタンプ（サーバー側は serverTimestamp）
         likes: 0,
       };
+      console.log("CreatePost onPost dispatch", newPost.id);
       onPost(newPost);
 
       // Reset form
