@@ -2,17 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import {
-  Home,
-  Search,
-  Bell,
-  Mail,
-  Bookmark,
-  Users,
-  User,
-  MoreHorizontal,
-  Feather,
-} from "lucide-react";
+import { Home, Search, Mail, MoreHorizontal } from "lucide-react";
 
 interface SidebarProps {
   onPostClick?: () => void;
@@ -22,7 +12,6 @@ export function Sidebar({ onPostClick }: SidebarProps) {
   const navItems = [
     { icon: Home, label: "夜空 (Night Sky)", href: "/sns", active: true },
     { icon: Search, label: "火種を探す", href: "#" },
-    { icon: Bell, label: "通知", href: "#" },
     { icon: Mail, label: "チャット", href: "#" },
   ];
 
