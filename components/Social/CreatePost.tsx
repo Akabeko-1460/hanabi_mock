@@ -7,6 +7,7 @@ import { db, storage } from "@/lib/firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { UserProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CreatePostProps {
   onPost: (newPost: PostData) => void;
@@ -14,6 +15,7 @@ interface CreatePostProps {
 }
 
 export function CreatePost({ onPost, userProfile }: CreatePostProps) {
+  const { user } = useAuth();
   const [content, setContent] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -53,6 +55,7 @@ export function CreatePost({ onPost, userProfile }: CreatePostProps) {
 
       const docRef = await addDoc(collection(db, "posts"), {
         author,
+        authorId: user?.uid || null, // Handle undefined for anonymous users
         avatar,
         photoURL,
         content: content.trim(),
@@ -64,6 +67,7 @@ export function CreatePost({ onPost, userProfile }: CreatePostProps) {
       const newPost: PostData = {
         id: docRef.id,
         author,
+        authorId: user?.uid || undefined, // Local state can use undefined if interface allows, or null
         avatar,
         photoURL: photoURL || undefined,
         content: content.trim(),

@@ -50,6 +50,7 @@ export function SocialTab() {
             return {
               id: d.id,
               author: data.author ?? "Unknown",
+              authorId: data.authorId ?? undefined, // Read authorId
               avatar: data.avatar ?? "from-orange-500 to-red-600",
               photoURL: data.photoURL ?? undefined,
               content: data.content ?? "",

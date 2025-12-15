@@ -21,7 +21,7 @@ interface SidebarProps {
 export function Sidebar({ onPostClick }: SidebarProps) {
   const navItems = [
     { icon: Home, label: "ホーム", href: "/sns", active: true },
-    { icon: Search, label: "話題を検索", href: "#" },
+    { icon: Search, label: "検索", href: "#" },
     { icon: Bell, label: "通知", href: "#" },
     { icon: Mail, label: "チャット", href: "#" },
   ];

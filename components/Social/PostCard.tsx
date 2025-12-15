@@ -1,9 +1,29 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Heart, MessageCircle, Share2, MoreHorizontal, Trash2, Send } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  MoreHorizontal,
+  Trash2,
+  Send,
+} from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, doc, getDoc, setDoc, deleteDoc, increment, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  onSnapshot,
+  query,
+  orderBy,
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  increment,
+  updateDoc,
+} from "firebase/firestore";
 import { useAuth } from "@/hooks/useAuth";
 
 export interface PostData {
@@ -35,7 +55,15 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
-  const [replies, setReplies] = useState<Array<{ id: string; author: string; content: string; photoURL?: string; timestamp: number }>>([]);
+  const [replies, setReplies] = useState<
+    Array<{
+      id: string;
+      author: string;
+      content: string;
+      photoURL?: string;
+      timestamp: number;
+    }>
+  >([]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -120,7 +148,7 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
     const q = query(repliesRef, orderBy("timestamp", "asc"));
     const unsub = onSnapshot(q, (snap) => {
       const list = snap.docs.map((d) => {
-        const data = d.data() as any;
+        const data = d.data() as ReplyData;
         return {
           id: d.id,
           author: data.author ?? "",
@@ -197,13 +225,19 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
 
               {showMenu && (
                 <div className="absolute right-0 mt-2 w-32 bg-black border border-white/20 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                  <button
-                    onClick={handleDelete}
-                    className="w-full text-left px-4 py-3 text-red-500 hover:bg-white/10 flex items-center gap-2 text-sm font-bold"
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
+                  {!post.authorId || (user && user.uid === post.authorId) ? (
+                    <button
+                      onClick={handleDelete}
+                      className="w-full text-left px-4 py-3 text-red-500 hover:bg-white/10 flex items-center gap-2 text-sm font-bold"
+                    >
+                      <Trash2 size={16} />
+                      Delete
+                    </button>
+                  ) : (
+                    <div className="px-4 py-3 text-white/50 text-sm italic">
+                      No actions
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -269,7 +303,10 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
                 const shareData = {
                   title: `${post.author}の投稿`,
                   text: post.content,
-                  url: typeof window !== "undefined" ? window.location.href : undefined,
+                  url:
+                    typeof window !== "undefined"
+                      ? window.location.href
+                      : undefined,
                 } as ShareData;
                 try {
                   if (navigator.share) {
@@ -298,15 +335,23 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
           {showReplyBox && (
             <div className="mt-3 flex items-end gap-2">
               {user?.photoURL ? (
-                <img src={user.photoURL} alt={user.displayName ?? "You"} className="w-8 h-8 rounded-full object-cover" />
+                <img
+                  src={user.photoURL}
+                  alt={user.displayName ?? "You"}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 text-xs">You</div>
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 text-xs">
+                  You
+                </div>
               )}
               <div className="flex-1 flex items-center gap-2">
                 <input
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
-                  placeholder={user ? "返信を入力..." : "返信にはログインが必要です"}
+                  placeholder={
+                    user ? "返信を入力..." : "返信にはログインが必要です"
+                  }
                   disabled={!user || submittingReply}
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
                 />
@@ -327,7 +372,11 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
               {replies.map((r) => (
                 <div key={r.id} className="flex gap-3">
                   {r.photoURL ? (
-                    <img src={r.photoURL} alt={r.author} className="w-8 h-8 rounded-full object-cover" />
+                    <img
+                      src={r.photoURL}
+                      alt={r.author}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
                       {r.author[0] || "?"}
@@ -335,10 +384,16 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
                   )}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-white/90">{r.author}</span>
-                      <span className="text-xs text-white/40">{formatDate(r.timestamp)}</span>
+                      <span className="text-sm font-semibold text-white/90">
+                        {r.author}
+                      </span>
+                      <span className="text-xs text-white/40">
+                        {formatDate(r.timestamp)}
+                      </span>
                     </div>
-                    <p className="text-sm text-white/80 whitespace-pre-wrap">{r.content}</p>
+                    <p className="text-sm text-white/80 whitespace-pre-wrap">
+                      {r.content}
+                    </p>
                   </div>
                 </div>
               ))}
