@@ -2,29 +2,34 @@
 
 import React from "react";
 import Link from "next/link";
-import {
-  Home,
-  Search,
-  Bell,
-  Mail,
-  Bookmark,
-  Users,
-  User,
-  MoreHorizontal,
-  Feather,
-} from "lucide-react";
+import { Home, Search, Bell, Mail, MoreHorizontal } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 
 interface SidebarProps {
   onPostClick?: () => void;
 }
 
 export function Sidebar({ onPostClick }: SidebarProps) {
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useProfile(user);
+
   const navItems = [
     { icon: Home, label: "ホーム", href: "/sns", active: true },
     { icon: Search, label: "検索", href: "#" },
     { icon: Bell, label: "通知", href: "#" },
     { icon: Mail, label: "チャット", href: "#" },
   ];
+
+  const isLoading = authLoading || profileLoading;
+  const displayName =
+    profile?.displayName ||
+    user?.displayName ||
+    user?.email?.split("@")[0] ||
+    "未ログイン";
+  const userId = profile?.uid || user?.uid || "guest";
+  const avatarGradient = profile?.avatarGradient || "from-orange-400 to-red-600";
+  const avatarUrl = profile?.photoURL || user?.photoURL;
 
   return (
     <div className="sticky top-0 h-screen w-[275px] shrink-0 flex flex-col justify-between px-4 py-4 border-r border-white/20 overflow-y-auto hidden lg:flex">
@@ -67,10 +72,22 @@ export function Sidebar({ onPostClick }: SidebarProps) {
 
       {/* User Profile Mini-Card at Bottom */}
       <div className="mb-4 flex items-center gap-3 p-3 rounded-full hover:bg-white/10 cursor-pointer transition-colors">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-600" />
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt="user avatar"
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        ) : (
+          <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${avatarGradient}`} />
+        )}
         <div className="flex-1 overflow-hidden">
-          <p className="font-bold truncate">Current User</p>
-          <p className="text-white/50 text-sm truncate">@username</p>
+          <p className="font-bold truncate">
+            {isLoading ? "読み込み中..." : displayName}
+          </p>
+          <p className="text-white/50 text-sm truncate">
+            {isLoading ? "loading……" : `@${userId}`}
+          </p>
         </div>
         <MoreHorizontal size={18} />
       </div>
