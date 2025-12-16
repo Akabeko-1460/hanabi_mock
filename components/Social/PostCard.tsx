@@ -29,6 +29,8 @@ import { useAuth } from "@/hooks/useAuth";
 export interface PostData {
   id: string;
   author: string;
+  authorId?: string;
+  visibility?: "public" | "private";
   avatar: string; // Gradient classes or placeholder
   photoURL?: string; // User's custom avatar image URL
   content: string;
@@ -39,6 +41,14 @@ export interface PostData {
 
 interface PostCardProps {
   post: PostData;
+}
+
+interface ReplyData {
+  author?: string;
+  uid?: string;
+  photoURL?: string;
+  content?: string;
+  timestamp?: { toMillis: () => number };
 }
 
 interface PostCardProps {
@@ -262,14 +272,14 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
 
           {/* Actions */}
           <div className="flex justify-between items-center pt-2 text-white/50 max-w-sm">
-            <button 
+            <button
               onClick={() => {
                 if (!user) {
                   onLoginRequired?.();
                   return;
                 }
                 setShowReplyBox((v) => !v);
-              }} 
+              }}
               className="flex items-center gap-2 hover:text-blue-400 group transition-colors"
             >
               <MessageCircle

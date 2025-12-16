@@ -12,9 +12,14 @@ import { useAuth } from "@/hooks/useAuth";
 interface CreatePostProps {
   onPost: (newPost: PostData) => void;
   userProfile: UserProfile | null;
+  isPrivate?: boolean;
 }
 
-export function CreatePost({ onPost, userProfile }: CreatePostProps) {
+export function CreatePost({
+  onPost,
+  userProfile,
+  isPrivate = false,
+}: CreatePostProps) {
   const { user } = useAuth();
   const [content, setContent] = useState("");
   const [image, setImage] = useState<string | null>(null);
@@ -32,7 +37,7 @@ export function CreatePost({ onPost, userProfile }: CreatePostProps) {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent | React.KeyboardEvent) => {
     e.preventDefault();
     if (!content.trim() && !image) return;
     setSubmitting(true);
@@ -62,6 +67,7 @@ export function CreatePost({ onPost, userProfile }: CreatePostProps) {
         image: imageUrl || null,
         timestamp: serverTimestamp(),
         likes: 0,
+        visibility: isPrivate ? "private" : "public",
       });
 
       const newPost: PostData = {
@@ -112,6 +118,12 @@ export function CreatePost({ onPost, userProfile }: CreatePostProps) {
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit(e);
+              }
+            }}
             placeholder="What's burning? 🔥"
             className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-white/40 text-lg resize-none min-h-[80px]"
           />
