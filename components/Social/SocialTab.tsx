@@ -1,17 +1,27 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
-import { CreatePost } from "./CreatePost";
-import { PostCard, PostData } from "./PostCard";
-import { FireworksOverlay } from "./FireworksOverlay";
-import { db } from "@/lib/firebase";
 import {
+  DndContext,
+  DragEndEvent,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { TrashBin } from "./TrashBin";
+import { FireworksOverlay } from "./FireworksOverlay";
+import { DraggablePostCard } from "./DraggablePostCard";
+import {
+  doc,
+  deleteDoc,
   collection,
-  onSnapshot,
-  orderBy,
   query,
   where,
+  orderBy,
+  onSnapshot,
 } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { CreatePost } from "./CreatePost";
+import { PostData } from "./PostCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 
@@ -50,6 +60,22 @@ export function SocialTab({
   const { profile } = useProfile(user);
   const [posts, setPosts] = useState<PostData[]>(SEED_POSTS);
   const [ready, setReady] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null); // Unused but kept if needed for drag overlay later
+  const [dropTrigger, setDropTrigger] = useState(0);
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 10, // Require 10px movement before drag starts (allows clicks)
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250, // Long press to drag on touch, allowing scrolling
+        tolerance: 5,
+      },
+    })
+  );
   const [showFireworks, setShowFireworks] = useState(false);
 
   // Subscribe to Firestore in realtime
@@ -108,31 +134,64 @@ export function SocialTab({
       console.error(e);
       setReady(true);
     }
-  }, [tab, user?.uid]);
+  }, [tab, user]);
 
   const handleNewPost = (newPost: PostData) => {
-    // Firestoreのリアルタイムリスナーが更新を検知するため、
-    // ここでの手動更新（setPosts）は不要です。
-    // 重複キーエラーを防ぐため、楽観的更新は行いません。
-    console.log("handleNewPost called, showing fireworks", newPost?.id);
-    setShowFireworks(true);
+    setPosts((prev) => [newPost, ...prev]);
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && over.id === "trash-bin") {
+      const postId = active.id as string;
+
+      // Trigger effect
+      setDropTrigger(Date.now());
+
+      // Delete from local state instantly
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+
+      // Delete from Firestore if it exists there
+      try {
+        await deleteDoc(doc(db, "posts", postId));
+        console.log("Deleted post", postId);
+      } catch (e) {
+        console.error("Error deleting post", e);
+        // Could revert state here if strict consistency needed
+      }
+    }
   };
 
   return (
-    <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <FireworksOverlay
-        isActive={showFireworks}
-        onComplete={() => setShowFireworks(false)}
-      />
-      {user && <CreatePost onPost={handleNewPost} userProfile={profile} />}
-      <div className="space-y-4">
-        {!ready && (
-          <div className="text-white/50 text-sm">Loading posts...</div>
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
+        {user && showCompose && (
+          <CreatePost onPost={handleNewPost} userProfile={profile} />
         )}
-        {posts.map((post) => (
-          <PostCard key={post.id} post={post} onLoginRequired={() => {}} />
-        ))}
+        <div className="space-y-4 pb-24">
+          {" "}
+          {/* Added padding for TrashBin */}
+          {!ready && (
+            <div className="text-white/50 text-sm">Loading posts...</div>
+          )}
+          {posts.map((post) => (
+            <DraggablePostCard
+              key={post.id}
+              post={post}
+              onLoginRequired={() => {}}
+            />
+          ))}
+        </div>
+
+        {/* Render TrashBin if user is logged in (or always if we allow guest deletes locally?) 
+            Let's show it always for interaction feel, but maybe disable logic? 
+            Assuming user works for now based on context. 
+        */}
+        <TrashBin dropTrigger={dropTrigger} />
+
+        {/* Optional: Add DragOverlay for better visual if desired, but default drag works too */}
       </div>
-    </div>
+    </DndContext>
   );
 }
