@@ -150,6 +150,7 @@ export function SocialTab({
               content: data.content ?? "",
               image: data.image ?? undefined,
               attachment: data.attachment ?? undefined,
+              sentiment: data.sentiment ?? undefined,
               timestamp: ts,
               expiresAt,
               likes: data.likes ?? 0,

@@ -44,6 +44,10 @@ export interface PostData {
   content: string;
   image?: string; // Legacy field for backward compatibility
   attachment?: Attachment;
+  sentiment?: {
+    score: number;
+    label: "positive" | "negative";
+  };
   timestamp: number;
   likes: number;
   expiresAt?: number; // epoch ms when the post should expire
@@ -240,6 +244,19 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
               <span className="text-white/40 text-xs sm:text-sm hidden sm:inline">
                 · {formatDate(post.timestamp)}
               </span>
+              {post.sentiment && (
+                <span
+                  className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                    post.sentiment.label === "positive"
+                      ? "border-orange-500/50 text-orange-400 bg-orange-500/10"
+                      : "border-blue-500/50 text-blue-400 bg-blue-500/10"
+                  }`}
+                >
+                  {post.sentiment.label === "positive"
+                    ? "Positive"
+                    : "Negative"}
+                </span>
+              )}
             </div>
 
             <div className="relative" ref={menuRef}>

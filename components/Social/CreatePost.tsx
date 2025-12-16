@@ -13,6 +13,7 @@ import {
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { UserProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
+import { analyzeSentimentAction } from "@/app/actions/sentiment";
 
 interface CreatePostProps {
   onPost: (newPost: PostData) => void;
@@ -102,6 +103,10 @@ export function CreatePost({
         userProfile?.avatarGradient || "from-orange-500 to-red-600";
       const photoURL = userProfile?.photoURL || null;
 
+      // Analyze sentiment
+      const sentiment = await analyzeSentimentAction(content.trim());
+      console.log("Analyzed sentiment:", sentiment);
+
       const docRef = await addDoc(collection(db, "posts"), {
         author,
         authorId: user?.uid || null, // Handle undefined for anonymous users
@@ -109,6 +114,7 @@ export function CreatePost({
         photoURL,
         content: content.trim(),
         attachment: attachmentData || null,
+        sentiment, // Save sentiment
         timestamp: serverTimestamp(),
         expiresAt: Timestamp.fromMillis(Date.now() + 60 * 60 * 1000),
         likes: 0,
@@ -122,6 +128,7 @@ export function CreatePost({
         photoURL: photoURL || undefined,
         content: content.trim(),
         attachment: attachmentData,
+        sentiment,
         timestamp: Date.now(), // 表示用に仮タイムスタンプ（サーバー側は serverTimestamp）
         expiresAt: Date.now() + 60 * 60 * 1000,
         likes: 0,
