@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Sidebar } from "@/components/Social/Sidebar";
 
 import { SocialTab } from "@/components/Social/SocialTab";
@@ -119,6 +120,7 @@ export default function CommunityPage() {
         </div>
       )}
 
+
       <div className="flex w-full">
         {/* Left Sidebar */}
         <Sidebar
@@ -132,6 +134,15 @@ export default function CommunityPage() {
 
         {/* Main Feed (Moved to Right) */}
         <main className="w-full lg:w-[600px] lg:flex-none border-l border-white/20 min-h-screen relative">
+          <div className="lg:hidden sticky top-0 z-20 border-b border-white/10 bg-black/80 backdrop-blur-sm">
+            <Link
+              href="/"
+              className="m-3 flex items-center justify-center rounded-full bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 px-6 py-3 text-2xl font-black tracking-tight text-white drop-shadow-[0_0_20px_rgba(249,115,22,0.8)]"
+            >
+              HANABI
+            </Link>
+          </div>
+
           <div className="sticky top-0 bg-black/80 backdrop-blur-md z-10 border-b border-white/20">
             <div className="flex w-full">
               <div
