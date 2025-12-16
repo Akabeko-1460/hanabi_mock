@@ -112,7 +112,6 @@ export function CreatePost({
       const newPost: PostData = {
         id: docRef.id,
         author,
-        authorId: user?.uid || undefined,
         avatar,
         photoURL: photoURL || undefined,
         content: content.trim(),
@@ -120,6 +119,7 @@ export function CreatePost({
         timestamp: Date.now(),
         likes: 0,
       };
+      console.log("CreatePost onPost dispatch", newPost.id);
       onPost(newPost);
 
       // Reset form

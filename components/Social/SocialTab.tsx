@@ -9,6 +9,7 @@ import {
 } from "@dnd-kit/core";
 import { Search } from "lucide-react";
 import { TrashBin } from "./TrashBin";
+import { FireworksOverlay } from "./FireworksOverlay";
 import { DraggablePostCard } from "./DraggablePostCard";
 import {
   doc,
@@ -77,6 +78,7 @@ export function SocialTab({
       },
     })
   );
+  const [showFireworks, setShowFireworks] = useState(false);
 
   // Subscribe to Firestore in realtime
   useEffect(() => {

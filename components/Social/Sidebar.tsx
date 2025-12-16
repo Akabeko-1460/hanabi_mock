@@ -2,7 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { Home, Mail, MoreHorizontal } from "lucide-react";
+
+import { Home, Search, Mail, MoreHorizontal } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 
@@ -11,13 +12,24 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onPostClick }: SidebarProps) {
-  const { user } = useAuth();
-  const { profile } = useProfile(user);
+
+  const { user, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useProfile(user);
 
   const navItems = [
     { icon: Home, label: "夜空", href: "/sns", active: true },
     { icon: Mail, label: "チャット", href: "#" },
   ];
+
+  const isLoading = authLoading || profileLoading;
+  const displayName =
+    profile?.displayName ||
+    user?.displayName ||
+    user?.email?.split("@")[0] ||
+    "未ログイン";
+  const userId = profile?.uid || user?.uid || "guest";
+  const avatarGradient = profile?.avatarGradient || "from-orange-400 to-red-600";
+  const avatarUrl = profile?.photoURL || user?.photoURL;
 
   return (
     <div className="sticky top-0 h-screen w-[275px] shrink-0 flex flex-col justify-between px-4 py-4 border-r border-white/20 overflow-y-auto hidden lg:flex">
@@ -81,6 +93,7 @@ export function Sidebar({ onPostClick }: SidebarProps) {
       </div>
 
       {/* User Profile Mini-Card at Bottom */}
+
       {user ? (
         <Link
           href="/?tab=settings"
@@ -116,6 +129,15 @@ export function Sidebar({ onPostClick }: SidebarProps) {
           <div className="flex-1">
             <p className="text-white/50 text-sm">Guest User</p>
           </div>
+
+        <div className="flex-1 overflow-hidden">
+          <p className="font-bold truncate">
+            {isLoading ? "読み込み中..." : displayName}
+          </p>
+          <p className="text-white/50 text-sm truncate">
+            {isLoading ? "loading……" : `@${userId}`}
+          </p>
+
         </div>
       )}
     </div>
