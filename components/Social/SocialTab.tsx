@@ -4,7 +4,18 @@ import React, { useEffect, useRef, useState } from "react";
 import { CreatePost } from "./CreatePost";
 import { PostCard, PostData } from "./PostCard";
 import { db } from "@/lib/firebase";
-import { collection, deleteDoc, onSnapshot, orderBy, query } from "firebase/firestore";
+import { collection, deleteDoc, onSnapshot, orderBy, query,  doc, where,} from "firebase/firestore";
+import {
+  DndContext,
+  DragEndEvent,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import { Search } from "lucide-react";
+import { TrashBin } from "./TrashBin";
+import { DraggablePostCard } from "./DraggablePostCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 
@@ -33,17 +44,55 @@ const SEED_POSTS: PostData[] = [
   },
 ];
 
-export function SocialTab() {
+export function SocialTab({
+  tab = "everyone",
+  showCompose = false,
+}: {
+  tab?: "everyone" | "solo";
+  showCompose?: boolean;
+}) {
   const { user } = useAuth();
   const { profile } = useProfile(user);
   const [posts, setPosts] = useState<PostData[]>(SEED_POSTS);
   const [ready, setReady] = useState(false);
   const cleanedRef = useRef<Set<string>>(new Set());
+  const [activeId, setActiveId] = useState<string | null>(null); // Unused but kept if needed for drag overlay later
+  const [dropTrigger, setDropTrigger] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 10, // Require 10px movement before drag starts (allows clicks)
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250, // Long press to drag on touch, allowing scrolling
+        tolerance: 5,
+      },
+    })
+  );
+  const [showFireworks, setShowFireworks] = useState(false);
 
   // Subscribe to Firestore in realtime
   useEffect(() => {
     try {
-      const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+      let q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+
+      if (tab === "solo") {
+        if (!user) {
+          setPosts([]);
+          setReady(true);
+          return;
+        }
+        q = query(
+          collection(db, "posts"),
+          where("authorId", "==", user.uid),
+          orderBy("timestamp", "desc")
+        );
+      }
+
       const unsub = onSnapshot(
         q,
         (snap) => {
@@ -102,26 +151,94 @@ export function SocialTab() {
       console.error(e);
       setReady(true);
     }
-  }, []);
+  }, [tab, user]);
 
-  const handleNewPost = (newPost: PostData) => {
-    // 楽観的更新：投稿直後に先頭に追加
-    setPosts((prev) => [newPost, ...prev]);
+  const handleNewPost = (_newPost: PostData) => {
+    // Optimistic update removed to prevent duplicate keys with real-time listener
+    // setPosts((prev) => [newPost, ...prev]);
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && over.id === "trash-bin") {
+      const postId = active.id as string;
+
+      // Trigger effect
+      setDropTrigger(Date.now());
+
+      // Delete from local state instantly
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+
+      // Delete from Firestore if it exists there
+      try {
+        await deleteDoc(doc(db, "posts", postId));
+        console.log("Deleted post", postId);
+      } catch (e) {
+        console.error("Error deleting post", e);
+        // Could revert state here if strict consistency needed
+      }
+    }
   };
 
   return (
-    <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {user && (
-        <CreatePost onPost={handleNewPost} userProfile={profile} />
-      )}
-      <div className="space-y-4">
-        {!ready && (
-          <div className="text-white/50 text-sm">Loading posts...</div>
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+      <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
+        {/* Search Bar */}
+        <div className="mb-6 relative">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">
+            <Search size={18} />
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="火種を探す..."
+            className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all hover:bg-white/10"
+          />
+        </div>
+
+        {user && showCompose && (
+          <CreatePost
+            onPost={handleNewPost}
+            userProfile={profile}
+            isPrivate={tab === "solo"}
+          />
         )}
-        {posts.map((post) => (
-          <PostCard key={post.id} post={post} onLoginRequired={() => {}} />
-        ))}
+        <div className="space-y-4 pb-24">
+          {" "}
+          {/* Added padding for TrashBin */}
+          {!ready && (
+            <div className="text-white/50 text-sm">Loading posts...</div>
+          )}
+          {posts
+            .filter((post) => {
+              if (!searchQuery.trim()) return true;
+              const q = searchQuery.toLowerCase();
+              return (
+                post.content.toLowerCase().includes(q) ||
+                post.author.toLowerCase().includes(q) ||
+                post.attachment?.name.toLowerCase().includes(q)
+              );
+            })
+            .map((post) => (
+              <DraggablePostCard
+                key={post.id}
+                post={post}
+                isOwner={user?.uid === post.authorId}
+                onLoginRequired={() => {}}
+              />
+            ))}
+        </div>
+
+        {/* Render TrashBin if user is logged in (or always if we allow guest deletes locally?) 
+            Let's show it always for interaction feel, but maybe disable logic? 
+            Assuming user works for now based on context. 
+        */}
+        <TrashBin dropTrigger={dropTrigger} />
+
+        {/* Optional: Add DragOverlay for better visual if desired, but default drag works too */}
       </div>
-    </div>
+    </DndContext>
   );
 }
