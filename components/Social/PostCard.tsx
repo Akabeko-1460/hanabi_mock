@@ -61,13 +61,6 @@ interface PostCardProps {
   onLoginRequired?: () => void;
 }
 
-interface ReplyData {
-  author?: string;
-  content?: string;
-  photoURL?: string;
-  timestamp?: any;
-}
-
 export function PostCard({ post, onLoginRequired }: PostCardProps) {
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likes);
