@@ -112,7 +112,6 @@ export function CreatePost({
       const newPost: PostData = {
         id: docRef.id,
         author,
-        authorId: user?.uid || undefined,
         avatar,
         photoURL: photoURL || undefined,
         content: content.trim(),
