@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+
 import { Home, Search, Mail, MoreHorizontal } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -11,12 +12,12 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onPostClick }: SidebarProps) {
+
   const { user, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useProfile(user);
 
   const navItems = [
     { icon: Home, label: "夜空", href: "/sns", active: true },
-    { icon: Search, label: "火種を探す", href: "#" },
     { icon: Mail, label: "チャット", href: "#" },
   ];
 
@@ -92,26 +93,44 @@ export function Sidebar({ onPostClick }: SidebarProps) {
       </div>
 
       {/* User Profile Mini-Card at Bottom */}
-      <div className="mb-4 flex items-center gap-3 p-3 rounded-full hover:bg-white/10 cursor-pointer transition-colors">
-        {avatarUrl ? (
-          <img
-            src={avatarUrl}
-            alt="user avatar"
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        ) : (
-          <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${avatarGradient}`} />
-        )}
-        <div className="flex-1 overflow-hidden">
-          <p className="font-bold truncate">
-            {isLoading ? "読み込み中..." : displayName}
-          </p>
-          <p className="text-white/50 text-sm truncate">
-            {isLoading ? "loading……" : `@${userId}`}
-          </p>
+
+      {user ? (
+        <Link
+          href="/?tab=settings"
+          className="mb-4 flex items-center gap-3 p-3 rounded-full hover:bg-white/10 cursor-pointer transition-colors border border-transparent hover:border-white/10"
+        >
+          {profile?.photoURL ? (
+            <img
+              src={profile.photoURL}
+              alt={profile.displayName}
+              className="w-10 h-10 rounded-full object-cover shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+            />
+          ) : (
+            <div
+              className={`w-10 h-10 rounded-full bg-gradient-to-tr ${
+                profile?.avatarGradient || "from-blue-500 to-purple-600"
+              } shadow-[0_0_10px_rgba(59,130,246,0.5)]`}
+            />
+          )}
+
+          <div className="flex-1 overflow-hidden">
+            <p className="font-bold truncate text-white">
+              {profile?.displayName || "Guest"}
+            </p>
+            <p className="text-white/50 text-sm truncate">
+              @{user.uid.slice(0, 8)}...
+            </p>
+          </div>
+          <MoreHorizontal size={18} className="text-white/50" />
+        </Link>
+      ) : (
+        <div className="mb-4 flex items-center gap-3 p-3">
+          <div className="w-10 h-10 rounded-full bg-white/10" />
+          <div className="flex-1">
+            <p className="text-white/50 text-sm">Guest User</p>
+          </div>
         </div>
-        <MoreHorizontal size={18} className="text-white/50" />
-      </div>
+      )}
     </div>
   );
 }
