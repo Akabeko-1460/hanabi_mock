@@ -224,16 +224,17 @@ export function SocialTab({
     >
       <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
         {/* Search Bar */}
-        <div className="mb-6 relative">
+        <div className="mb-4 sm:mb-6 relative">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">
-            <Search size={18} />
+            <Search size={18} className="sm:block hidden" />
+            <Search size={16} className="sm:hidden" />
           </div>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="火種を探す..."
-            className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all hover:bg-white/10"
+            className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-xs sm:text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all hover:bg-white/10"
           />
         </div>
 
@@ -244,11 +245,11 @@ export function SocialTab({
             isPrivate={tab === "solo"}
           />
         )}
-        <div className="space-y-4 pb-24">
+        <div className="space-y-3 sm:space-y-4 pb-24">
           {" "}
           {/* Added padding for TrashBin */}
           {!ready && (
-            <div className="text-white/50 text-sm">Loading posts...</div>
+            <div className="text-white/50 text-xs sm:text-sm">Loading posts...</div>
           )}
           {posts
             .filter((post) => {

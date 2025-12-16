@@ -73,27 +73,28 @@ export default function CommunityPage() {
 
       {/* Login Prompt for Guests */}
       {!user && (
-        <div className="fixed top-4 right-4 z-50 bg-gradient-to-r from-orange-500/90 to-red-600/90 backdrop-blur-sm border border-white/20 rounded-lg p-4 max-w-sm shadow-lg animate-in fade-in slide-in-from-top-2 duration-500">
+        <div className="fixed top-3 sm:top-4 right-3 sm:right-4 z-50 bg-gradient-to-r from-orange-500/90 to-red-600/90 backdrop-blur-sm border border-white/20 rounded-lg p-3 sm:p-4 max-w-sm shadow-lg animate-in fade-in slide-in-from-top-2 duration-500">
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-2 flex-1">
-              <p className="font-semibold text-white">
+              <p className="font-semibold text-white text-sm sm:text-base">
                 さらに楽しむにはログイン
               </p>
-              <p className="text-sm text-white/90">
+              <p className="text-xs sm:text-sm text-white/90">
                 返信やいいねなどの機能を使用できます
               </p>
               <button
                 onClick={() => setShowLoginPrompt(true)}
-                className="mt-2 px-4 py-1.5 bg-white text-black font-bold rounded-full text-sm hover:bg-white/90 transition-colors"
+                className="mt-2 px-3 py-1 sm:px-4 sm:py-1.5 bg-white text-black font-bold rounded-full text-xs sm:text-sm hover:bg-white/90 transition-colors"
               >
                 ログイン
               </button>
             </div>
             <button
               onClick={() => setShowLoginPrompt(true)}
-              className="text-white/60 hover:text-white"
+              className="text-white/60 hover:text-white flex-shrink-0"
             >
-              <X size={20} />
+              <X size={18} className="sm:hidden" />
+              <X size={20} className="hidden sm:block" />
             </button>
           </div>
         </div>
@@ -102,14 +103,15 @@ export default function CommunityPage() {
       {/* Login Modal */}
       {showLoginPrompt && !user && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-black border border-white/20 rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+          <div className="bg-black border border-white/20 rounded-2xl p-4 sm:p-6 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in-95 duration-300">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">ログイン</h2>
+              <h2 className="text-lg sm:text-xl font-bold">ログイン</h2>
               <button
                 onClick={() => setShowLoginPrompt(false)}
                 className="text-white/40 hover:text-white"
               >
-                <X size={24} />
+                <X size={20} className="sm:hidden" />
+                <X size={24} className="hidden sm:block" />
               </button>
             </div>
             <Login />
@@ -134,7 +136,7 @@ export default function CommunityPage() {
             <div className="flex w-full">
               <div
                 onClick={() => setActiveTab("everyone")}
-                className={`flex-1 hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-2 py-4 cursor-pointer relative group ${
+                className={`flex-1 hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 cursor-pointer relative group ${
                   activeTab === "everyone"
                     ? ""
                     : "text-white/50 hover:text-white/80"
@@ -144,7 +146,7 @@ export default function CommunityPage() {
                   <div className="w-2 h-2 bg-gradient-to-tr from-orange-500 to-red-600 rotate-45 shadow-[0_0_8px_rgba(249,115,22,0.6)]" />
                 )}
                 <span
-                  className={`font-bold drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] ${
+                  className={`font-bold drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] text-sm sm:text-base ${
                     activeTab === "everyone" ? "text-white" : ""
                   }`}
                 >
@@ -157,7 +159,7 @@ export default function CommunityPage() {
 
               <div
                 onClick={() => setActiveTab("solo")}
-                className={`flex-1 hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-2 py-4 cursor-pointer relative group ${
+                className={`flex-1 hover:bg-white/10 transition-all duration-300 flex items-center justify-center gap-1 sm:gap-2 py-3 sm:py-4 cursor-pointer relative group ${
                   activeTab === "solo"
                     ? ""
                     : "text-white/50 hover:text-white/80"
@@ -167,7 +169,7 @@ export default function CommunityPage() {
                   <div className="w-2 h-2 bg-gradient-to-tr from-cyan-400 to-blue-500 rotate-45 shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
                 )}
                 <span
-                  className={`font-medium drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] ${
+                  className={`font-medium drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] text-sm sm:text-base ${
                     activeTab === "solo" ? "text-white font-bold" : ""
                   }`}
                 >
@@ -181,7 +183,7 @@ export default function CommunityPage() {
           </div>
 
           <div className="pb-20">
-            <div className="p-4">
+            <div className="p-3 sm:p-4">
               <SocialTab tab={activeTab} showCompose={showCompose} />
             </div>
           </div>

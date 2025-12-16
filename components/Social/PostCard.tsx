@@ -212,18 +212,18 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
   };
 
   return (
-    <div className="w-full bg-white/5 backdrop-blur-md border border-white/10 rounded-xl overflow-visible hover:bg-white/[0.07] transition-all duration-300 relative shadow-lg hover:shadow-orange-500/5 group">
-      <div className="p-4 flex gap-4">
+    <div className="w-full bg-white/5 backdrop-blur-md border border-white/10 rounded-lg sm:rounded-xl overflow-visible hover:bg-white/[0.07] transition-all duration-300 relative shadow-lg hover:shadow-orange-500/5 group">
+      <div className="p-3 sm:p-4 flex gap-2 sm:gap-4">
         {/* Avatar */}
         {post.photoURL ? (
           <img
             src={post.photoURL}
             alt={post.author}
-            className="w-10 h-10 rounded-full flex-shrink-0 object-cover"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 object-cover"
           />
         ) : (
           <div
-            className={`w-10 h-10 rounded-full flex-shrink-0 bg-gradient-to-tr ${post.avatar} flex items-center justify-center text-white font-bold text-sm`}
+            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 bg-gradient-to-tr ${post.avatar} flex items-center justify-center text-white font-bold text-xs sm:text-sm`}
           >
             {post.author[0]}
           </div>
@@ -231,13 +231,13 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
 
         <div className="flex-1 space-y-2 min-w-0">
           {/* Header */}
-          <div className="flex justify-between items-start relative">
-            <div className="flex items-center gap-2">
-              <span className="font-bold">{post.author}</span>
-              <span className="text-white/40 text-sm">
+          <div className="flex justify-between items-start relative gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+              <span className="font-bold text-sm sm:text-base">{post.author}</span>
+              <span className="text-white/40 text-xs sm:text-sm">
                 @{post.author.toLowerCase().replace(" ", "")}
               </span>
-              <span className="text-white/40 text-sm">
+              <span className="text-white/40 text-xs sm:text-sm hidden sm:inline">
                 · {formatDate(post.timestamp)}
               </span>
             </div>
@@ -245,13 +245,14 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="text-white/40 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors"
+                className="text-white/40 hover:text-white p-1.5 sm:p-1 rounded-full hover:bg-white/10 transition-colors flex-shrink-0"
               >
-                <MoreHorizontal size={18} />
+                <MoreHorizontal size={16} className="sm:hidden" />
+                <MoreHorizontal size={18} className="hidden sm:block" />
               </button>
 
               {showMenu && (
-                <div className="absolute right-0 mt-2 w-32 bg-black border border-white/20 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 mt-2 w-28 sm:w-32 bg-black border border-white/20 rounded-lg sm:rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                   {!post.authorId || (user && user.uid === post.authorId) ? (
                     <button
                       onClick={handleDelete}
@@ -277,24 +278,24 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
 
           {/* Media Attachment */}
           {post.attachment ? (
-            <div className="mt-3 rounded-lg overflow-hidden border border-white/10">
+            <div className="mt-2 sm:mt-3 rounded-lg overflow-hidden border border-white/10">
               {post.attachment.type.startsWith("image/") ? (
                 <img
                   src={post.attachment.url}
                   alt={post.attachment.name}
-                  className="w-full h-auto max-h-[400px] object-cover"
+                  className="w-full h-auto max-h-[300px] sm:max-h-[400px] object-cover"
                   loading="lazy"
                 />
               ) : post.attachment.type.startsWith("video/") ? (
                 <video
                   src={post.attachment.url}
-                  className="w-full h-auto max-h-[400px] bg-black"
+                  className="w-full h-auto max-h-[300px] sm:max-h-[400px] bg-black"
                   controls
                   playsInline
                 />
               ) : (
-                <div className="bg-white/5 p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-orange-400">
+                <div className="bg-white/5 p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded bg-white/10 flex items-center justify-center text-orange-400 flex-shrink-0">
                     {/* Generic File Icon */}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -343,7 +344,7 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
           ) : null}
 
           {/* Actions */}
-          <div className="flex justify-between items-center pt-2 text-white/50 max-w-sm">
+          <div className="flex justify-between items-center pt-2 text-white/50 max-w-full gap-1 sm:gap-2">
             <button
               onClick={() => {
                 if (!user) {
@@ -352,13 +353,17 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
                 }
                 setShowReplyBox((v) => !v);
               }}
-              className="flex items-center gap-2 hover:text-blue-400 group transition-colors"
+              className="flex items-center gap-1 sm:gap-2 hover:text-blue-400 group transition-colors text-xs sm:text-sm"
             >
               <MessageCircle
-                size={18}
-                className="group-hover:bg-blue-500/10 p-1 box-content rounded-full"
+                size={16}
+                className="sm:hidden group-hover:bg-blue-500/10 p-1 box-content rounded-full"
               />
-              <span className="text-xs">Reply</span>
+              <MessageCircle
+                size={18}
+                className="hidden sm:block group-hover:bg-blue-500/10 p-1 box-content rounded-full"
+              />
+              <span className="hidden sm:inline">Reply</span>
             </button>
             <button
               onClick={() => {
@@ -368,13 +373,17 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
                 }
                 handleLike();
               }}
-              className={`flex items-center gap-2 group transition-colors ${
+              className={`flex items-center gap-1 sm:gap-2 group transition-colors text-xs sm:text-sm ${
                 liked ? "text-pink-500" : "hover:text-pink-500"
               }`}
             >
               <Heart
+                size={16}
+                className="sm:hidden group-hover:bg-pink-500/10 p-1 box-content rounded-full transition-transform"
+              />
+              <Heart
                 size={18}
-                className={`group-hover:bg-pink-500/10 p-1 box-content rounded-full transition-transform ${
+                className={`hidden sm:block group-hover:bg-pink-500/10 p-1 box-content rounded-full transition-transform ${
                   liked ? "fill-current scale-110" : ""
                 }`}
               />
@@ -403,13 +412,17 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
                   console.error("Share failed", e);
                 }
               }}
-              className="flex items-center gap-2 hover:text-green-400 group transition-colors"
+              className="flex items-center gap-1 sm:gap-2 hover:text-green-400 group transition-colors text-xs sm:text-sm"
             >
               <Share2
-                size={18}
-                className="group-hover:bg-green-500/10 p-1 box-content rounded-full"
+                size={16}
+                className="sm:hidden group-hover:bg-green-500/10 p-1 box-content rounded-full"
               />
-              <span className="text-xs">Share</span>
+              <Share2
+                size={18}
+                className="hidden sm:block group-hover:bg-green-500/10 p-1 box-content rounded-full"
+              />
+              <span className="hidden sm:inline">Share</span>
             </button>
           </div>
 
@@ -420,10 +433,10 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
                 <img
                   src={user.photoURL}
                   alt={user.displayName ?? "You"}
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover flex-shrink-0"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 text-xs">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 text-xs flex-shrink-0">
                   You
                 </div>
               )}
@@ -440,9 +453,10 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
                 <button
                   onClick={submitReply}
                   disabled={!user || submittingReply || !replyText.trim()}
-                  className="p-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-1.5 sm:p-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
                 >
-                  <Send size={16} />
+                  <Send size={16} className="sm:hidden" />
+                  <Send size={16} className="hidden sm:block" />
                 </button>
               </div>
             </div>
@@ -452,21 +466,21 @@ export function PostCard({ post, onLoginRequired }: PostCardProps) {
           {replies.length > 0 && (
             <div className="mt-4 space-y-3">
               {replies.map((r) => (
-                <div key={r.id} className="flex gap-3">
+                <div key={r.id} className="flex gap-2 sm:gap-3">
                   {r.photoURL ? (
                     <img
                       src={r.photoURL}
                       alt={r.author}
-                      className="w-8 h-8 rounded-full object-cover"
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
                       {r.author[0] || "?"}
                     </div>
                   )}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-white/90">
+                      <span className="text-xs sm:text-sm font-semibold text-white/90">
                         {r.author}
                       </span>
                       <span className="text-xs text-white/40">
