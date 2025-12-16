@@ -4,7 +4,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { CreatePost } from "./CreatePost";
 import { PostCard, PostData } from "./PostCard";
 import { db, storage } from "@/lib/firebase";
-import { collection, deleteDoc, onSnapshot, orderBy, query, doc, where } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  onSnapshot,
+  orderBy,
+  query,
+  doc,
+  where,
+} from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import {
   DndContext,
@@ -62,6 +70,18 @@ export function SocialTab({
   const [activeId, setActiveId] = useState<string | null>(null); // Unused but kept if needed for drag overlay later
   const [dropTrigger, setDropTrigger] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [hideNegative, setHideNegative] = useState(false);
+
+  useEffect(() => {
+    const checkSetting = () => {
+      setHideNegative(localStorage.getItem("hanabi_hide_negative") === "true");
+    };
+    checkSetting();
+
+    const handleStorageChange = () => checkSetting();
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const deleteAttachmentFromStorage = async (url?: string) => {
     if (!url) return;
@@ -250,10 +270,17 @@ export function SocialTab({
           {" "}
           {/* Added padding for TrashBin */}
           {!ready && (
-            <div className="text-white/50 text-xs sm:text-sm">Loading posts...</div>
+            <div className="text-white/50 text-xs sm:text-sm">
+              Loading posts...
+            </div>
           )}
           {posts
             .filter((post) => {
+              // Hide negative if setting enabled
+              if (hideNegative && post.sentiment?.label === "negative") {
+                return false;
+              }
+
               if (!searchQuery.trim()) return true;
               const q = searchQuery.toLowerCase();
               return (
