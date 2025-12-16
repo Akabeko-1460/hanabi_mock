@@ -46,7 +46,7 @@ function NavButton({
         />
       )}
       <span
-        className={`font-medium whitespace-nowrap transition-all duration-300 ${
+        className={`font-medium whitespace-nowrap transition-all duration-300 hidden sm:inline ${
           isActive
             ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
             : ""
@@ -55,12 +55,12 @@ function NavButton({
         {label}
       </span>
       {isActive && (
-        <div className="absolute bottom-1 left-6 right-6 h-[2px] bg-gradient-to-r from-orange-400 to-red-600 shadow-[0_0_10px_rgba(249,115,22,0.8)]" />
+        <div className="absolute bottom-1 left-3 sm:left-6 right-3 sm:right-6 h-[2px] bg-gradient-to-r from-orange-400 to-red-600 shadow-[0_0_10px_rgba(249,115,22,0.8)]" />
       )}
     </>
   );
 
-  const baseClasses = `relative flex items-center gap-3 px-6 py-3 rounded-full transition-all duration-300 group overflow-hidden ${
+const baseClasses = `relative flex items-center gap-2 sm:gap-3 px-3 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300 group overflow-hidden whitespace-nowrap text-sm sm:text-base ${
     isActive
       ? "bg-white/10 text-white shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-white/20"
       : "text-white/40 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/5"
@@ -95,16 +95,16 @@ export default function Home() {
   );
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-8 bg-black text-white selection:bg-orange-500/30">
-      <div className="max-w-5xl w-full flex flex-col items-center gap-12">
+    <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 bg-black text-white selection:bg-orange-500/30">
+      <div className="max-w-5xl w-full flex flex-col items-center gap-8 sm:gap-12">
         <header className="text-center space-y-4">
-          <h1 className="text-7xl font-black tracking-tighter bg-gradient-to-br from-orange-400 via-red-500 to-purple-600 bg-clip-text text-transparent animate-gradient drop-shadow-sm p-2">
+          <h1 className="text-5xl sm:text-7xl font-black tracking-tighter bg-gradient-to-br from-orange-400 via-red-500 to-purple-600 bg-clip-text text-transparent animate-gradient drop-shadow-sm p-2">
             HANABI
           </h1>
         </header>
 
         {/* Tab Navigation */}
-        <div className="flex p-1.5 bg-black/40 rounded-full border border-white/10 backdrop-blur-xl overflow-x-auto max-w-full shadow-2xl">
+        <div className="flex p-1 sm:p-1.5 bg-black/40 rounded-full border border-white/10 backdrop-blur-xl overflow-x-auto max-w-full shadow-2xl gap-1 sm:gap-0">
           <NavButton
             isActive={activeTab === "intro"}
             icon={Info}
@@ -146,7 +146,7 @@ export default function Home() {
         </div>
 
         {/* Content Area */}
-        <div className="w-full flex justify-center min-h-[400px] animate-in fade-in duration-500">
+        <div className="w-full flex justify-center min-h-[400px] animate-in fade-in duration-500 px-0">
           {activeTab === "intro" && <Introduction />}
           {activeTab === "upload" && <UploadMode />}
           {activeTab === "camera" && <RealTimeFire />}

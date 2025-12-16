@@ -154,18 +154,18 @@ export function CreatePost({
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full bg-white/5 border border-white/10 rounded-xl p-4 mb-8"
+      className="w-full bg-white/5 border border-white/10 rounded-lg sm:rounded-xl p-3 sm:p-4 mb-6 sm:mb-8"
     >
-      <div className="flex gap-4">
+      <div className="flex gap-2 sm:gap-4">
         {userPhotoURL ? (
           <img
             src={userPhotoURL}
             alt="Your avatar"
-            className="w-10 h-10 rounded-full flex-shrink-0 object-cover"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 object-cover"
           />
         ) : (
           <div
-            className={`w-10 h-10 rounded-full bg-gradient-to-r ${avatarGradient} flex-shrink-0`}
+            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r ${avatarGradient} flex-shrink-0`}
           />
         )}
         <div className="flex-1 space-y-4">
@@ -179,7 +179,7 @@ export function CreatePost({
               }
             }}
             placeholder="なにを炎上させる? 🔥"
-            className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-white/40 text-lg resize-none min-h-[80px]"
+            className="w-full bg-transparent border-none focus:ring-0 text-white placeholder-white/40 text-base sm:text-lg resize-none min-h-[80px]"
           />
 
           {fileObj && (
@@ -189,17 +189,17 @@ export function CreatePost({
                 <img
                   src={previewUrl}
                   alt="Preview"
-                  className="h-32 w-auto rounded-lg border border-white/20 object-cover"
+                  className="h-24 sm:h-32 w-auto rounded-lg border border-white/20 object-cover"
                 />
               ) : fileObj.type.startsWith("video/") && previewUrl ? (
                 <video
                   src={previewUrl}
-                  className="h-32 w-auto rounded-lg border border-white/20 bg-black"
+                  className="h-24 sm:h-32 w-auto rounded-lg border border-white/20 bg-black"
                   controls={false} // Just a thumbnail feel
                 />
               ) : (
-                <div className="h-16 flex items-center gap-3 bg-white/10 rounded-lg px-4 border border-white/20">
-                  <div className="font-bold text-white text-sm truncate max-w-[150px]">
+                <div className="h-14 sm:h-16 flex items-center gap-2 sm:gap-3 bg-white/10 rounded-lg px-3 sm:px-4 border border-white/20">
+                  <div className="font-bold text-white text-xs sm:text-sm truncate max-w-[100px] sm:max-w-[150px]">
                     {fileObj.name}
                   </div>
                   <div className="text-white/50 text-xs">
@@ -222,7 +222,7 @@ export function CreatePost({
             </div>
           )}
 
-          <div className="flex justify-between items-center border-t border-white/10 pt-4">
+          <div className="flex justify-between items-center border-t border-white/10 pt-3 sm:pt-4">
             {!fileObj ? (
               <button
                 type="button"

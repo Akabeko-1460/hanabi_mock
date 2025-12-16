@@ -3,16 +3,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { CreatePost } from "./CreatePost";
 import { PostCard, PostData } from "./PostCard";
-import { db } from "@/lib/firebase";
-import {
-  collection,
-  deleteDoc,
-  onSnapshot,
-  orderBy,
-  query,
-  doc,
-  where,
-} from "firebase/firestore";
+import { db, storage } from "@/lib/firebase";
+import { collection, deleteDoc, onSnapshot, orderBy, query, doc, where } from "firebase/firestore";
+import { deleteObject, ref } from "firebase/storage";
 import {
   DndContext,
   DragEndEvent,
@@ -26,7 +19,6 @@ import {
 import { Search } from "lucide-react";
 import { TrashBin } from "./TrashBin";
 import { DraggablePostCard } from "./DraggablePostCard";
-
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 
@@ -70,6 +62,22 @@ export function SocialTab({
   const [activeId, setActiveId] = useState<string | null>(null); // Unused but kept if needed for drag overlay later
   const [dropTrigger, setDropTrigger] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const deleteAttachmentFromStorage = async (url?: string) => {
+    if (!url) return;
+    try {
+      const fileRef = ref(storage, url);
+      await deleteObject(fileRef);
+    } catch (err) {
+      console.warn("Failed to delete attachment from storage", err);
+    }
+  };
+
+  const deletePostAssets = async (post?: PostData) => {
+    if (!post) return;
+    const url = post.attachment?.url ?? post.image;
+    await deleteAttachmentFromStorage(url);
+  };
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -120,6 +128,12 @@ export function SocialTab({
             if (expired) {
               if (!cleanedRef.current.has(d.id)) {
                 cleanedRef.current.add(d.id);
+                deletePostAssets({
+                  attachment: data.attachment,
+                  image: data.image,
+                }).catch((err) =>
+                  console.warn("Failed to delete expired post attachment", err)
+                );
                 deleteDoc(d.ref).catch((err) =>
                   console.error("Failed to auto-delete expired post", err)
                 );
@@ -181,6 +195,7 @@ export function SocialTab({
 
     if (over && over.id === "trash-bin") {
       const postId = active.id as string;
+      const targetPost = posts.find((p) => p.id === postId);
 
       // Trigger effect
       setDropTrigger(Date.now());
@@ -188,8 +203,9 @@ export function SocialTab({
       // Delete from local state instantly
       setPosts((prev) => prev.filter((p) => p.id !== postId));
 
-      // Delete from Firestore if it exists there
+      // Delete from Firestore and Storage if they exist there
       try {
+        await deletePostAssets(targetPost);
         await deleteDoc(doc(db, "posts", postId));
         console.log("Deleted post", postId);
       } catch (e) {
@@ -209,16 +225,17 @@ export function SocialTab({
     >
       <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
         {/* Search Bar */}
-        <div className="mb-6 relative">
+        <div className="mb-4 sm:mb-6 relative">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">
-            <Search size={18} />
+            <Search size={18} className="sm:block hidden" />
+            <Search size={16} className="sm:hidden" />
           </div>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="火種を探す..."
-            className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all hover:bg-white/10"
+            className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-xs sm:text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all hover:bg-white/10"
           />
         </div>
 
@@ -229,11 +246,11 @@ export function SocialTab({
             isPrivate={tab === "solo"}
           />
         )}
-        <div className="space-y-4 pb-24">
+        <div className="space-y-3 sm:space-y-4 pb-24">
           {" "}
           {/* Added padding for TrashBin */}
           {!ready && (
-            <div className="text-white/50 text-sm">Loading posts...</div>
+            <div className="text-white/50 text-xs sm:text-sm">Loading posts...</div>
           )}
           {posts
             .filter((post) => {
