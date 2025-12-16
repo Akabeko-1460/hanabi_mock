@@ -97,20 +97,32 @@ export function SocialTab({
       const unsub = onSnapshot(
         q,
         (snap) => {
-          const fetched: PostData[] = snap.docs.map((d) => {
-            const data = d.data() as any;
-            return {
-              id: d.id,
-              author: data.author ?? "Unknown",
-              authorId: data.authorId ?? undefined, // Read authorId
-              avatar: data.avatar ?? "from-orange-500 to-red-600",
-              photoURL: data.photoURL ?? undefined,
-              content: data.content ?? "",
-              image: data.image ?? undefined,
-              timestamp: (data.timestamp?.toMillis?.() as number) ?? Date.now(),
-              likes: data.likes ?? 0,
-            };
-          });
+          const fetched: PostData[] = snap.docs
+            .map((d) => {
+              const data = d.data() as any;
+              return {
+                id: d.id,
+                author: data.author ?? "Unknown",
+                authorId: data.authorId ?? undefined,
+                visibility: data.visibility ?? "public",
+                avatar: data.avatar ?? "from-orange-500 to-red-600",
+                photoURL: data.photoURL ?? undefined,
+                content: data.content ?? "",
+                image: data.image ?? undefined,
+                timestamp:
+                  (data.timestamp?.toMillis?.() as number) ?? Date.now(),
+                likes: data.likes ?? 0,
+              };
+            })
+            // Client-side filtering for simplicity
+            .filter((p) => {
+              // If we are in "everyone" tab, hide private posts
+              if (tab === "everyone" && p.visibility === "private") {
+                return false;
+              }
+              return true;
+            });
+
           setPosts(fetched.length ? fetched : SEED_POSTS);
           localStorage.setItem(STORAGE_KEY, JSON.stringify(fetched));
           setReady(true);
@@ -134,8 +146,9 @@ export function SocialTab({
     }
   }, [tab, user]);
 
-  const handleNewPost = (newPost: PostData) => {
-    setPosts((prev) => [newPost, ...prev]);
+  const handleNewPost = (_newPost: PostData) => {
+    // Optimistic update removed to prevent duplicate keys with real-time listener
+    // setPosts((prev) => [newPost, ...prev]);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -165,7 +178,11 @@ export function SocialTab({
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
         {user && showCompose && (
-          <CreatePost onPost={handleNewPost} userProfile={profile} />
+          <CreatePost
+            onPost={handleNewPost}
+            userProfile={profile}
+            isPrivate={tab === "solo"}
+          />
         )}
         <div className="space-y-4 pb-24">
           {" "}
@@ -177,6 +194,7 @@ export function SocialTab({
             <DraggablePostCard
               key={post.id}
               post={post}
+              isOwner={user?.uid === post.authorId}
               onLoginRequired={() => {}}
             />
           ))}

@@ -8,15 +8,18 @@ import { PostCard, PostData } from "./PostCard";
 interface DraggablePostCardProps {
   post: PostData;
   onLoginRequired: () => void;
+  isOwner?: boolean;
 }
 
 export function DraggablePostCard({
   post,
   onLoginRequired,
+  isOwner = false,
 }: DraggablePostCardProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: post.id,
+      disabled: !isOwner,
     });
 
   const style = {
