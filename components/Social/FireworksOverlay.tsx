@@ -20,6 +20,7 @@ interface FireworksOverlayProps {
   sound?: SoundOptions | string | string[];
 }
 
+
 export function FireworksOverlay({
   isActive,
   onComplete,
@@ -38,9 +39,7 @@ export function FireworksOverlay({
   const neutralHue = { min: 120, max: 160 };
 
   useEffect(() => {
-    if (isActive) {
-      console.log("FireworksOverlay active");
-    }
+    // activation tracked by parent; no-op here
   }, [isActive]);
 
   useEffect(() => {
@@ -73,10 +72,21 @@ export function FireworksOverlay({
     return sound as SoundOptions;
   })();
 
+  // Normalize volume: expect percentages (0..100). Use defaults and clamp to that range.
+  const normalizeVolume = (v?: SoundOptions["volume"]): { min: number; max: number } => {
+    const defaultRange = { min: 50, max: 80 };
+    const src = v ?? defaultRange;
+    const min = Math.max(0, Math.min(100, Math.round(typeof src.min === "number" ? src.min : defaultRange.min)));
+    const max = Math.max(0, Math.min(100, Math.round(typeof src.max === "number" ? src.max : defaultRange.max)));
+    return { min, max };
+  };
+
+  const finalSoundOptions: SoundOptions = soundOptions.enabled
+    ? { ...soundOptions, volume: normalizeVolume(soundOptions.volume) }
+    : soundOptions;
   useEffect(() => {
     const fw = fwRef.current;
     if (!fw || !isActive) return;
-    console.log("FireworksOverlay ref", fw);
     fw.start();
     fw.clear();
     requestAnimationFrame(() => {
@@ -118,8 +128,8 @@ export function FireworksOverlay({
             min: rocketsPointValue,
             max: rocketsPointValue,
           },
-          // Sound options (use direct prop or boolean-off default)
-          sound: soundOptions,
+          // Sound options (use direct prop or boolean-off default and apply master volume)
+          sound: finalSoundOptions,
           lineWidth: {
             explosion: {
               min: 1,
