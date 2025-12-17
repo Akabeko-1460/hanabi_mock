@@ -281,7 +281,8 @@ const fireworks = new Fireworks(container, {
   sound: {
     enabled: true,
     files: ['/sounds/explosion1.mp3'],
-    volume: { min: 0.5, max: 0.8 }
+    // Volume expressed as percentages (0..100).
+    volume: { min: 50, max: 80 }
   },
   lineWidth: {
     explosion: {

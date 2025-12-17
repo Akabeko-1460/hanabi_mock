@@ -25,7 +25,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { Send, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { TrashBin } from "./TrashBin";
 import { DraggablePostCard } from "./DraggablePostCard";
 import { useAuth } from "@/hooks/useAuth";
@@ -91,7 +91,7 @@ export function SocialTab({
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  const deleteAttachmentFromStorage = async (url?: string) => {
+  const deleteAttachmentFromStorage = React.useCallback(async (url?: string) => {
     if (!url) return;
     try {
       const fileRef = ref(storage, url);
@@ -99,14 +99,14 @@ export function SocialTab({
     } catch (err) {
       console.warn("Failed to delete attachment from storage", err);
     }
-  };
+  }, []);
 
   type PostAssets = Pick<PostData, "attachment" | "image">;
-  const deletePostAssets = async (post?: PostAssets) => {
+  const deletePostAssets = React.useCallback(async (post?: PostAssets) => {
     if (!post) return;
     const url = post.attachment?.url ?? post.image;
     await deleteAttachmentFromStorage(url);
-  };
+  }, [deleteAttachmentFromStorage]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -133,8 +133,11 @@ export function SocialTab({
 
       if (tab === "solo") {
         if (!user) {
-          setPosts([]);
-          setReady(true);
+          // Defer state updates to avoid calling setState synchronously inside an effect
+          queueMicrotask(() => {
+            setPosts([]);
+            setReady(true);
+          });
           return;
         }
         q = query(
@@ -214,7 +217,8 @@ export function SocialTab({
           });
 
           snap.docs.forEach((d) => {
-            const data = d.data() as any;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const data: any = d.data();
             const ts = (data.timestamp?.toMillis?.() as number) ?? Date.now();
             const expiresAt =
               (data.expiresAt?.toMillis?.() as number) ?? ts + EXPIRY_MS;
@@ -276,9 +280,10 @@ export function SocialTab({
       return () => unsub();
     } catch (e) {
       console.error(e);
-      setReady(true);
+      // Defer setReady to avoid sync setState inside effect
+      queueMicrotask(() => setReady(true));
     }
-  }, [tab, user]);
+  }, [tab, user, deletePostAssets]);
 
   // Synchronize local pending posts with parent (CommunityPage)
   useEffect(() => {
@@ -443,7 +448,7 @@ export function SocialTab({
         <FireworksOverlay
           isActive={showFireworks}
           sentimentLabel={fireworksSentiment}
-          sound={["/sounds/fireworks2.mp3"]}
+          sound={{ enabled: true, files: ['/sounds/fireworks.mp3'], volume: { min: 90, max: 100 } }}
           onComplete={() => {
             setShowFireworks(false);
             setFireworksSentiment(null);
