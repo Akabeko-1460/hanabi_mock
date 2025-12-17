@@ -470,7 +470,7 @@ export function SocialTab({
           </AnimatePresence>
         </motion.div>
 
-        <TrashBin dropTrigger={dropTrigger} />
+        <TrashBin dropTrigger={dropTrigger} soundEnabled={soundEnabled} />
 
         <DragOverlay>
           {activePost ? (

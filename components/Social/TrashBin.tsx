@@ -5,15 +5,17 @@ import { useDroppable } from "@dnd-kit/core";
 
 interface TrashBinProps {
   dropTrigger?: number; // Timestamp or incrementing ID to trigger effect
+  soundEnabled?: boolean;
 }
 
-export function TrashBin({ dropTrigger }: TrashBinProps) {
+export function TrashBin({ dropTrigger, soundEnabled = true }: TrashBinProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: "trash-bin",
   });
   const [smoke, setSmoke] = useState<boolean>(false);
 
   const playSound = () => {
+    if (!soundEnabled) return;
     try {
       const AudioContext =
         window.AudioContext || (window as any).webkitAudioContext;
