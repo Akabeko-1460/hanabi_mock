@@ -11,8 +11,7 @@ import { X } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ProfileSettings } from "@/components/ProfileSettings";
 import { useProfile } from "@/hooks/useProfile";
-
-// ... existing imports ...
+import { PostCard, PostData } from "@/components/Social/PostCard";
 
 export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState<"everyone" | "solo">("everyone");
@@ -21,12 +20,15 @@ export default function CommunityPage() {
   const { user, loading } = useAuth();
   const { profile, updateProfile } = useProfile(user);
 
+  // Pending posts state for animation in left column (Array)
+  const [pendingPosts, setPendingPosts] = useState<PostData[]>([]);
+
   const searchParams = useSearchParams();
   const isSettingsOpen = searchParams.get("tab") === "settings";
   const router = useRouter();
 
   const handleCloseSettings = () => {
-    // Remove tab param by replacing (to avoid history stack buildup if desired, or push to root /sns)
+    // Remove tab param by replacing
     router.replace("/sns");
   };
 
@@ -127,10 +129,32 @@ export default function CommunityPage() {
           }
         />
 
-        {/* Center Spacer (pushes feed to right) */}
-        <div className="hidden lg:block flex-1 border-r border-white/10" />
+        {/* Center Spacer / Pending Post Stage (Between Sidebar and Main Feed) 
+            Adjusted to top-left align with padding to match "below Ignite button"
+        */}
+        <div className="hidden lg:flex flex-1 border-r border-white/10 flex-col items-start justify-start pt-[280px] pl-8 relative gap-6">
+          {pendingPosts.length > 0 ? (
+            <>
+              {pendingPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="w-full max-w-md animate-broadcast"
+                >
+                  <PostCard post={post} onLoginRequired={() => {}} />
+                </div>
+              ))}
+            </>
+          ) : (
+            <div className="text-white/10 w-full h-full flex flex-col items-center justify-center select-none pb-[280px]">
+              <div className="text-8xl mb-4 opacity-50 grayscale">🌋</div>
+              <div className="text-sm tracking-[0.2em] font-light">
+                NO SIGNAL
+              </div>
+            </div>
+          )}
+        </div>
 
-        {/* Main Feed (Moved to Right) */}
+        {/* Main Feed (Right Side) */}
         <main className="w-full lg:w-[600px] lg:flex-none border-l border-white/20 min-h-screen relative">
           <div className="sticky top-0 bg-black/80 backdrop-blur-md z-10 border-b border-white/20">
             <div className="flex w-full">
@@ -184,7 +208,11 @@ export default function CommunityPage() {
 
           <div className="pb-20">
             <div className="p-3 sm:p-4">
-              <SocialTab tab={activeTab} showCompose={showCompose} />
+              <SocialTab
+                tab={activeTab}
+                showCompose={showCompose}
+                onPendingPostsChange={setPendingPosts}
+              />
             </div>
           </div>
         </main>
