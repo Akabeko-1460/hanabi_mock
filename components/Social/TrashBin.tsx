@@ -45,8 +45,8 @@ export function TrashBin({ dropTrigger }: TrashBinProps) {
       // Gain: Sharp attack, sizzling tail
       const gain = ctx.createGain();
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.8, t + 0.05); // Attack
-      gain.gain.exponentialRampToValueAtTime(0.01, t + duration); // Decay
+      gain.gain.linearRampToValueAtTime(0.2, t + 0.05); // Attack
+      gain.gain.exponentialRampToValueAtTime(0.005, t + duration); // Decay
 
       noise.connect(filter);
       filter.connect(gain);

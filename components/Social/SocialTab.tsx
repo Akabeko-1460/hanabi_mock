@@ -377,7 +377,7 @@ export function SocialTab({
         <FireworksOverlay
           isActive={showFireworks}
           sentimentLabel={fireworksSentiment}
-          sound={["/sounds/fireworks2.mp3"]}
+          sound={["/sounds/fireworks.mp3"]}
           onComplete={() => {
             setShowFireworks(false);
             setFireworksSentiment(null);
