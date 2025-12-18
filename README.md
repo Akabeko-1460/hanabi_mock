@@ -1,6 +1,8 @@
 # P2HACKS2025 アピールシート
 
 ## プロダクト名
+<img width="2240" height="1403" alt="HANABI_logo_copy" src="https://github.com/user-attachments/assets/8065e2af-efe4-475b-8024-e7a38b655e7d" />
+
 HANABI (はなび)
 
 ## コンセプト
