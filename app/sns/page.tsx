@@ -48,6 +48,8 @@ export default function CommunityPage() {
     }
   };
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const stored = localStorage.getItem("hanabi_sound_enabled");
     if (stored === "true") {
@@ -94,6 +96,10 @@ export default function CommunityPage() {
 
   const handleComposeClick = () => {
     if (user) {
+      // Scroll to top
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      }
       setShowCompose((prev) => !prev);
       // Also scroll to top so user can see the compose form
       handleScrollTop();
