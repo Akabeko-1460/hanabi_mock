@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Hanabi - Share Your Fire 🔥",
+  title: "HANABI - Share Your Fireworks 🔥",
   description:
     "Share your fire-breathing moments and connect with the community",
 };

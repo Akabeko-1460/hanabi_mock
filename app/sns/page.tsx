@@ -112,16 +112,20 @@ export default function CommunityPage() {
       {isSettingsOpen && (
         <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="relative w-full max-w-2xl">
-            <button
-              onClick={handleCloseSettings}
-              className="absolute -top-12 right-0 md:-right-12 text-white/50 hover:text-white transition-colors"
-            >
-              <X size={32} />
-            </button>
             {user ? (
-              <ProfileSettings profile={profile} onSave={updateProfile} />
+              <ProfileSettings
+                profile={profile}
+                onSave={updateProfile}
+                onClose={handleCloseSettings}
+              />
             ) : (
-              <div className="bg-white/5 border border-white/10 rounded-xl p-8 text-center">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-8 text-center relative">
+                <button
+                  onClick={handleCloseSettings}
+                  className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors"
+                >
+                  <X size={20} />
+                </button>
                 <p>ログインしてください</p>
                 <button
                   onClick={() => {
