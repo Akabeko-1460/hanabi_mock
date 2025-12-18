@@ -3,11 +3,12 @@
 import React, { useState } from "react";
 import { UserProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
-import { Save, User, LogOut } from "lucide-react";
+import { Save, User, LogOut, X } from "lucide-react";
 
 interface ProfileSettingsProps {
   profile: UserProfile | null;
   onSave: (updates: Partial<UserProfile>) => Promise<void>;
+  onClose?: () => void;
 }
 
 const GRADIENT_OPTIONS = [
@@ -21,7 +22,11 @@ const GRADIENT_OPTIONS = [
   { name: "Electric", value: "from-cyan-400 to-blue-600" },
 ];
 
-export function ProfileSettings({ profile, onSave }: ProfileSettingsProps) {
+export function ProfileSettings({
+  profile,
+  onSave,
+  onClose,
+}: ProfileSettingsProps) {
   const { logout } = useAuth();
   const [displayName, setDisplayName] = useState(profile?.displayName || "");
   const [avatarGradient, setAvatarGradient] = useState(
@@ -92,8 +97,17 @@ export function ProfileSettings({ profile, onSave }: ProfileSettingsProps) {
     <div className="w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
       <form
         onSubmit={handleSubmit}
-        className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-6"
+        className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-6 relative"
       >
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors"
+          >
+            <X size={20} />
+          </button>
+        )}
         <div className="flex items-center gap-4 pb-4 border-b border-white/10">
           <User size={24} className="text-orange-400" />
           <h2 className="text-2xl font-bold">プロフィール設定</h2>
