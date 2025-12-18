@@ -96,6 +96,7 @@ export function useSocialPosts({ tab, user }: UseSocialPostsProps) {
         (snap) => {
           const now = Date.now();
           const fetched: PostData[] = [];
+          const addedIds: string[] = [];
 
           snap.docChanges().forEach((change) => {
             if (change.type === "added") {
@@ -123,6 +124,8 @@ export function useSocialPosts({ tab, user }: UseSocialPostsProps) {
 
                 setPendingPosts((prev) => {
                   if (prev.some((p) => p.id === change.doc.id)) return prev;
+
+                  addedIds.push(change.doc.id);
 
                   const newPost: PostData = {
                     id: change.doc.id,
@@ -207,21 +210,13 @@ export function useSocialPosts({ tab, user }: UseSocialPostsProps) {
 
           setPosts(fetched.length ? fetched : SEED_POSTS);
 
-          // Detect new posts compared to last saved 50 IDs in localStorage
+          // Detect new posts (from docChanges added) to trigger fireworks
           try {
-            const saved = localStorage.getItem(STORAGE_LAST_IDS);
-            const prevIds: string[] = saved ? JSON.parse(saved) : lastSavedIds;
-            const prevSet = new Set(prevIds);
-            const currentIds = fetched.map((p) => p.id);
-            const newIds =
-              prevIds.length === 0
-                ? [] // 初回は花火を鳴らさない
-                : currentIds.filter((id) => !prevSet.has(id));
-
-            if (newIds.length) {
-              const sentiments = newIds
+            if (addedIds.length) {
+              const sentiments = addedIds
                 .map(
-                  (id) => fetched.find((p) => p.id === id)?.sentiment?.label ?? null
+                  (id) =>
+                    fetched.find((p) => p.id === id)?.sentiment?.label ?? null
                 )
                 .filter((v) => v !== undefined);
               setNewPostEvent({
@@ -230,6 +225,7 @@ export function useSocialPosts({ tab, user }: UseSocialPostsProps) {
               });
             }
 
+            const currentIds = fetched.map((p) => p.id);
             localStorage.setItem(
               STORAGE_LAST_IDS,
               JSON.stringify(currentIds.slice(0, 50))
