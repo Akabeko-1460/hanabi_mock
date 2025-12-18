@@ -166,7 +166,6 @@ export function SocialTab({
     // Choose sentiment preset for fireworks and activate
     const label = newPost.sentiment?.label ?? null;
     setFireworksSentiment(label);
-    setShowFireworks(true);
 
     // Notify parent to scroll or do other actions
     if (onPostCreated) {
