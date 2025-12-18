@@ -218,7 +218,10 @@ export default function CommunityPage() {
         {/* Center Spacer / Pending Post Stage (Between Sidebar and Main Feed) 
             Adjusted to top-left align with padding to match "below Ignite button"
         */}
-        <div className="hidden lg:flex flex-1 border-r border-white/10 flex-col items-center justify-start pt-[280px] relative gap-6">
+        <div
+          className="hidden lg:flex flex-1 border-r border-white/10 flex-col items-center justify-start pt-[280px] relative gap-6"
+          data-pending-stack
+        >
           <AnimatePresence mode="popLayout" initial={false}>
             {pendingPosts.length > 0 ? (
               pendingPosts.map((post) => (

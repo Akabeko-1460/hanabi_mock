@@ -34,13 +34,24 @@ const getViewport = () => {
 
 const pickTarget = () => {
   const { width, height } = getViewport();
-  const paddingX = Math.max(48, Math.round(width * 0.08));
   const paddingY = Math.max(96, Math.round(height * 0.12));
-  const x = paddingX + Math.random() * Math.max(60, width - paddingX * 2);
+
+  // Prefer a visible pending stack (mobile or desktop). Fallback to viewport center.
+  const stacks = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-pending-stack]")
+  );
+  const visibleStack = stacks.find((el) => {
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  });
+  const rect = visibleStack?.getBoundingClientRect();
+
+  const centerX = rect ? rect.left + rect.width / 2 : width / 2;
   const y =
     paddingY +
     Math.random() * Math.max(80, Math.round(height * 0.45) - paddingY);
-  return { x, y };
+
+  return { x: centerX, y };
 };
 
 export function FireworksOverlay({
@@ -87,7 +98,9 @@ export function FireworksOverlay({
     const { width, height } = getViewport();
     return {
       hue: hueRange,
-      rocketsPoint: { min: 38, max: 62 },
+      rocketsPoint: { min: 50, max: 50 },
+      launchAngle: { min: 80, max: 100 },
+      burstDistance: Math.round(height * 0.75),
       mouse: { click: false, move: false, max: 0 },
       boundaries: {
         x: 32,
@@ -119,6 +132,8 @@ export function FireworksOverlay({
       }
 
       const { width, height } = getViewport();
+      const { x: targetX } = pickTarget();
+      const rocketsPoint = Math.max(0, Math.min(100, (targetX / width) * 100));
 
       fw.updateOptions({
         boundaries: {
@@ -130,11 +145,9 @@ export function FireworksOverlay({
         },
         sound: normalizedSound,
         hue: hueRange,
-      });
-
-      const target = pickTarget();
-      fw.updateOptions({
-        target: { enabled: true, x: target.x, y: target.y },
+        rocketsPoint: { min: rocketsPoint, max: rocketsPoint },
+        burstDistance: Math.round(height * 0.75),
+        launchAngle: { min: 70, max: 110 },
       });
 
       fw.launch(1);

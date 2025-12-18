@@ -161,7 +161,10 @@ export function SocialTab({
     >
       <div className="w-full relative animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Mobile "Center" Shim - if on mobile, show pending posts here at top */}
-        <div className="lg:hidden mb-6 flex flex-col gap-4">
+        <div
+          className="lg:hidden mb-6 flex flex-col gap-4"
+          data-pending-stack
+        >
           {pendingPosts.map((p) => (
             <div
               key={p.id}
@@ -222,6 +225,7 @@ export function SocialTab({
           layout
           style={{ overflowAnchor: "none" }}
           className="flex flex-col gap-3 sm:gap-4 pb-24"
+          data-feed-root
         >
           {!ready && (
             <div className="text-white/50 text-xs sm:text-sm">
