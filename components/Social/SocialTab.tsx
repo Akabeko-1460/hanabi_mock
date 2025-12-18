@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CreatePost } from "./CreatePost";
 import { PostCard, PostData } from "./PostCard";
@@ -55,6 +55,11 @@ export function SocialTab({
     null
   );
   const [fireworksTrigger, setFireworksTrigger] = useState(0);
+  const [fireworksProcessing, setFireworksProcessing] = useState(false);
+  const fireworksTimerRef = useRef<number | null>(null);
+  const fireworksQueueTimerRef = useRef<number | null>(null);
+  type FireworksEventDetail = { sentiments?: (string | null)[] };
+  type FireworksCustomEvent = CustomEvent<FireworksEventDetail>;
 
   // Enqueue sentiments from new post events
   useEffect(() => {
@@ -63,14 +68,56 @@ export function SocialTab({
     }
   }, [newPostEvent]);
 
+  const queueFireworks = useCallback((label: string | null, count = 1) => {
+    if (count <= 0) return;
+    const sentiments = Array.from({ length: count }, () => label);
+    setFireworksQueue((prev) => [...prev, ...sentiments]);
+  }, []);
+
+  // Listen for global fireworks requests (e.g., clicks on pending posts outside this component)
+  useEffect(() => {
+    const handler = (e: FireworksCustomEvent) => {
+      const sentiments = e.detail?.sentiments;
+      if (!sentiments?.length) return;
+      setFireworksQueue((prev) => [...prev, ...sentiments]);
+    };
+    const listener: EventListener = (e) =>
+      handler(e as FireworksCustomEvent);
+    window.addEventListener("hanabi-fireworks", listener);
+    return () => window.removeEventListener("hanabi-fireworks", listener);
+  }, []);
+
   // Dequeue one sentiment at a time and trigger fireworks
   useEffect(() => {
+    if (fireworksProcessing) return;
     if (!fireworksQueue.length) return;
-    const [next, ...rest] = fireworksQueue;
-    setFireworksSentiment(next ?? null);
-    setFireworksQueue(rest);
-    setFireworksTrigger((prev) => prev + 1);
-  }, [fireworksQueue]);
+
+    // Defer state updates out of the effect body to avoid cascading render warnings
+    fireworksQueueTimerRef.current = window.setTimeout(() => {
+      const [next, ...rest] = fireworksQueue;
+      setFireworksSentiment(next ?? null);
+      setFireworksQueue(rest);
+      setFireworksTrigger((prev) => prev + 1);
+      setFireworksProcessing(true);
+
+      const delay = 80 + Math.random() * 120; // quick stagger, but not simultaneous
+      fireworksTimerRef.current = window.setTimeout(() => {
+        setFireworksProcessing(false);
+        fireworksTimerRef.current = null;
+      }, delay);
+    }, 0);
+  }, [fireworksProcessing, fireworksQueue]);
+
+  useEffect(() => {
+    return () => {
+      if (fireworksQueueTimerRef.current) {
+        window.clearTimeout(fireworksQueueTimerRef.current);
+      }
+      if (fireworksTimerRef.current) {
+        window.clearTimeout(fireworksTimerRef.current);
+      }
+    };
+  }, []);
 
   // Clean cleanedRef ... actually this logic is inside the hook now but we used it for one-off deletes.
   // The hook handles the expiration deletes.
@@ -168,7 +215,11 @@ export function SocialTab({
           {pendingPosts.map((p) => (
             <div
               key={p.id}
-              className="animate-in zoom-in-50 fade-in duration-700 border-b border-white/10 pb-6"
+              className="animate-in zoom-in-50 fade-in duration-700 border-b border-white/10 pb-6 cursor-pointer"
+              onClick={() => {
+                const count = 3 + Math.floor(Math.random() * 3); // 3-5発
+                queueFireworks(p.sentiment?.label ?? null, count);
+              }}
             >
               <PostCard post={p} onLoginRequired={() => {}} />
             </div>
