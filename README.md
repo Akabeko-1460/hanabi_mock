@@ -90,7 +90,11 @@ Kj：フロントエンド、バックエンド
 - Next.js
 
 ライブラリ：
-- いろいろ
+- fireworks-js-setlocation(fireworks-jsをフォークして改造)
+  - [githubリポジトリ](https://github.com/shun-god/fireworks-js-setlocation)
+  - [npmパッケージ](https://www.npmjs.com/package/@shun_god/fireworks-js-setlocation)
+  - [npmパッケージ(reactラッパー)](https://www.npmjs.com/package/@shun_god/fireworks-js-setlocation-react)
+- [その他](./package.json)
 
 ### その他開発に使用したツール・サービス
 - GitHub
