@@ -34,9 +34,12 @@ HANABIが解決する課題：
 しかし、SNSと感情分析の仕様上、10～30代の日本人が中心になると考えています。
 
 ## 利用の流れ
-1．HANABIのWebサイトを開く(URL、QRコードなどから)  
-2．&lt;Settings&gt;タブから、GoogleアカウントでSign inする  
+1．HANABIのWebサイトを開く(URL、QRコードなどから) 
+<img width="1207" height="801" alt="image" src="https://github.com/user-attachments/assets/d20add45-34b9-4f1a-a71e-8343ace7fed9" />  
+2．&lt;Login&gt;タブから、GoogleアカウントでSign inする  
+<img width="1207" height="801" alt="image" src="https://github.com/user-attachments/assets/289dbf77-078c-41cb-9fb3-e2f893d065ef" />  
 3．&lt;SNS&gt;タブから、HANABIを起動する  
+<img width="1903" height="1053" alt="image" src="https://github.com/user-attachments/assets/acd77445-d0c5-4594-b2b6-2e1ef3bbee5e" />  
 その後：  
 ・&lt;発火&gt;ボタンを押すと出てくるテキストボックスに「発火したい内容」を入力して、&lt;発火&gt;ボタンを押す or Enterキーを押す（Shift + Enterで改行ができます）  
 ・他人の投稿をクリックして追い花火を打ち上げる  
@@ -60,7 +63,17 @@ Kj：フロントエンド、バックエンド
 全員：発表資料作成
 
 ### 開発における工夫した点
-開発における工夫した点を書いてください。チーム開発における工夫、技術的な工夫、スケジュール管理の工夫など、どのようなことでもよいです。
+チーム開発における工夫：  
+- 事前にWindows11homeにnvmを用いてNode.jsをインストールして、バージョンを揃えた  
+- 一日の最後に褒め合い会を実施して、互いのその日の頑張りを褒め合った  
+- 毎日対面で全員集合することを徹底した  
+- 迷ったときのために、「プロジェクトの指針(https://docs.google.com/document/d/1ySdrOqEB4dRODu6fXeJYCmHa-D2mt5kq8Pl0hfx_ruM/edit?usp=sharing)」を作成していつでも見れるようにした  
+技術的な工夫：  
+- とんかつ  
+スケジュール管理の工夫：  
+- 評価基準を基に、発表関連のタスクに時間を多く使うようにした。
+- ゴールから逆算してスケジュールを決定し、余裕を持って開発を進めた(日, 火, 水, 木に全員で開発をすることで、)
+
 
 ## 開発技術
 
