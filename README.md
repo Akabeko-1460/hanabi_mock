@@ -1,7 +1,7 @@
 # P2HACKS2025 アピールシート
 
 ## プロダクト名  
-はなび
+はなび  
 <img width="2240" height="1403" alt="HANABI_logo_copy" src="https://github.com/user-attachments/assets/8065e2af-efe4-475b-8024-e7a38b655e7d" />
 
 ## コンセプト
@@ -64,13 +64,13 @@ Kj：フロントエンド、バックエンド
 
 ### 開発における工夫した点
 チーム開発における工夫：  
-- 事前にWindows11homeにnvmを用いてNode.jsをインストールして、バージョンを揃えた  
+- 事前にWindows11にnvmを用いてNode.jsをインストールして、バージョンを揃えた  
 - 一日の最後に褒め合い会を実施して、互いのその日の頑張りを褒め合った  
 - 毎日対面で全員集合することを徹底した  
 - 迷ったときのために、「プロジェクトの指針
   (https://docs.google.com/document/d/1ySdrOqEB4dRODu6fXeJYCmHa-D2mt5kq8Pl0hfx_ruM/edit?usp=sharing)
   」
-  を作成していつでも見れるようにした  
+  を作成していつでも見られるようにした  
 技術的な工夫：  
 - とんかつ  
 スケジュール管理の工夫：  
