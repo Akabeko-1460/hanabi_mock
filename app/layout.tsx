@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   title: "HANABI - Share Your Fireworks 🔥",
   description:
     "Share your fire-breathing moments and connect with the community",
+  icons: {
+    icon: "/icon.ico",
+  },
 };
 
 export const viewport: Viewport = {
