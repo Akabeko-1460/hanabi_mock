@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   title: "HANABI - Share Your Fireworks 🔥",
   description:
     "Share your fire-breathing moments and connect with the community",
+  icons: {
+    icon: "/icon.ico",
+  },
 };
 
 export const viewport: Viewport = {
@@ -31,6 +34,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#ff8903" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
