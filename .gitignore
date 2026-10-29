@@ -397,3 +397,6 @@ firebasehosting-debug.log
 ui-debug.log
 
 # End of https://www.toptal.com/developers/gitignore/api/python,unity,node
+
+# Local-only files kept on this PC; never push them to GitHub
+/local_only/
